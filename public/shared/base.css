@@ -1,0 +1,26 @@
+@font-face {
+  font-family: "Departure Mono";
+  src: url("../fonts/DepartureMono-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+:root {
+  --void: #050309;
+  --paper: #ffffff;
+  --ink: #0b0b0c;
+  --grey: #8a8a90;
+  --acid: #c8ff00;
+  --hot: #ffb314;
+  --mono: "Departure Mono", ui-monospace, Menlo, monospace;
+  --pixel: "Doto", "Departure Mono", monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { background: var(--void); color: var(--paper); font-family: var(--mono); -webkit-font-smoothing: none; }
+.hud { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255, 255, 255, .78); }
+canvas.thermal { position: fixed; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; display: block; }
+a { color: inherit; }
+.btn { display: inline-block; font: inherit; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; padding: 12px 16px; border: 1px solid var(--ink); color: var(--ink); text-decoration: none; cursor: pointer; background: transparent; }
+.btn.acid { background: var(--acid); border-color: var(--ink); }
+.btn:hover { background: var(--ink); color: var(--acid); }
+.back { position: fixed; z-index: 50; bottom: 14px; left: 50%; transform: translateX(-50%); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.6); text-decoration: none; }
+.back:hover { color: var(--acid); }
