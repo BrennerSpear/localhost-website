@@ -4,7 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LOCALHOST</title>
+<meta name="description" content="New York's Sovereign AI Hackathon. Saturday, November 7, 2026 at The School, NYC. 1 team, 1 company: build yours on sovereign AI.">
+<meta property="og:title" content="LOCALHOST: New York's Sovereign AI Hackathon">
+<meta property="og:description" content="No one should own your AI except for you. Saturday, November 7 at The School, NYC.">
+<meta property="og:image" content="https://localhost-website.gpcc.workers.dev/img/school/leg1-thermal.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="shared/base.css">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
   @font-face { font-family: "IBM Plex Mono"; src: url("fonts/IBMPlexMono-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
   @font-face { font-family: "IBM Plex Mono"; src: url("fonts/IBMPlexMono-500.woff2") format("woff2"); font-weight: 500; font-display: swap; }
@@ -226,6 +232,7 @@
   [data-t="9"] .meta { margin-top: 32px; padding-top: 16px; border-top: 1px dashed #2a3038; display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 6px 14px; align-items: baseline; }
   [data-t="9"] .meta .k { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--lo); }
   [data-t="9"] .meta .v { font-family: var(--read); font-weight: 500; font-size: 15px; letter-spacing: 0; text-transform: none; color: var(--hi); }
+  [data-t="9"] .meta .v.wide { grid-column: 2 / -1; }
   /* actions in three tiers: filled, outlined, text */
   [data-t="9"] .ctas { margin-top: 24px; gap: 12px; }
   [data-t="9"] .b { font-size: 13px; letter-spacing: .1em; padding: 12px 18px; border-color: #3a424c; color: var(--hi); }
@@ -239,6 +246,20 @@
   [data-t="9"] .cstate.locked::before { background: var(--lo); }
   [data-t="9"] .list, [data-t="9"] .info { font-family: var(--read); }
   [data-t="9"] .info { font-size: 14px; }
+  .apf { display: grid; gap: 14px; padding: 16px 18px 18px; max-height: calc(100svh - 110px); overflow: auto; font-family: var(--read, var(--mono)); font-size: 14px; }
+  .apf label { display: grid; gap: 6px; }
+  .apf .k { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--lo, var(--dim)); }
+  .apf input, .apf textarea { font: 14px var(--read, var(--mono)); padding: 10px; background: #000; color: var(--fg); border: 1px solid var(--ln); border-radius: 0; }
+  .apf input:focus, .apf textarea:focus { outline: 1px solid var(--pri); border-color: var(--pri); }
+  .apf .opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .apf .opts label { display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--ln); cursor: pointer; }
+  .apf .opts input { accent-color: #c8ff00; }
+  .apf .opts label:has(input:checked) { border-color: var(--pri); color: var(--pri); }
+  .apf .hp { position: absolute; left: -9999px; width: 1px; height: 1px; }
+  .apf .row2 { display: flex; align-items: center; gap: 14px; }
+  .apf .msg { font-size: 13px; color: var(--mid, var(--dim)); }
+  .apf .done, .info a { color: var(--pri); }
+  .apf .done { font-size: 15px; line-height: 1.6; }
   @media (max-width: 640px) {
     .corner.tr, .reticle { display: none; }
     #main { top: 53%; }
@@ -263,7 +284,6 @@
 <script type="module">
 import { thermal } from "./shared/thermal.js";
 import { mosh } from "./shared/mosh.js";
-import { TRACKS } from "./shared/tracks.js";
 
 const N = 10;
 const V = 9;
@@ -317,9 +337,9 @@ const pageHTML = `
     <p class="sub" data-c>New York's Sovereign AI <span style="white-space:nowrap">Hackathon <span class="ny" aria-hidden="true">🗽</span></span></p>
     <p class="line1" data-c>No one should own your AI except for you.</p>
     <p class="line2" data-c>${L2}</p>
-    <div class="meta"><span class="k">When</span><span class="v" data-c>Nov 7–8, 2026</span><span class="k">Who</span><span class="v" data-c>100 hackers + speakers</span></div>
+    <div class="meta"><span class="k">When</span><span class="v" data-c>Sat, Nov 7, 2026</span><span class="k">Who</span><span class="v" data-c>100 hackers</span><span class="k">Brief</span><span class="v wide" data-c>1 team, 1 company: build yours on sovereign AI</span></div>
     <div class="ctas">
-      <a class="b pri" href="sponsor.html" data-c>Sponsor a track</a><a class="b" href="#" data-c>Apply to hack</a>
+      <a class="b pri" href="sponsor.html" data-c>Sponsor a track</a><button class="b" data-open="apply" data-c>Apply to hack</button>
       <span class="sp"></span>
       <button class="b ghost" data-open="tracks" data-c>Tracks →</button><button class="b ghost" data-open="schedule" data-c>Schedule →</button>
     </div>
@@ -333,28 +353,37 @@ Are you sure you want to continue connecting (yes/no)?<span class="q"><button id
 
 const sched = `<span class="d">draft, times will move</span>
 
-FRI
-  16:00  talks
-  18:00  team formation, hacking starts
-  22:00  doors close
-
-SAT
-  AM     doors + coffee
-  tbd    lunch
-  tbd    dinner
-  22:00  doors close
-
-SUN
-  AM     doors + coffee
-  tbd    lunch
-  tbd    demos + prizes
-  tbd    dinner`;
+SAT 7 NOV
+  10:00  doors + coffee
+  10:30  opening remarks
+  11:00  kickoff, hacking starts
+  13:30  lunch
+  18:00  dinner
+  19:00  projects in
+  19:30  finalist demos + judging
+  21:00  awards + closing
+  22:00  doors close`;
 
 document.getElementById("root").innerHTML = `
 <div class="win focus" id="main">${TH.chrome("localhost", false)}${gate}<div class="page"${V === 10 ? " hidden" : ""}>${pageHTML}</div>${TH.foot ? TH.foot(false) : ""}</div>
 <div class="win pop" id="tracks" hidden style="width:min(460px,calc(100vw - 32px))">${TH.chrome("Tracks", true)}
-  <div class="list" id="list"><div class="hdr"><span>Name</span><span>Group</span></div></div>
-  <div class="info" id="info"><span class="k">Select a track.</span></div>${TH.foot ? TH.foot(true) : ""}</div>
+  <div class="list" id="list"><div class="hdr"><span>Name</span><span>Status</span></div></div>
+  <div class="info" id="info"><span class="k">Encrypted.</span> Tracks are set with our sponsors and decrypt closer to the day.</div>${TH.foot ? TH.foot(true) : ""}</div>
+<div class="win pop" id="apply" hidden style="width:min(440px,calc(100vw - 32px))">${TH.chrome("Apply", true)}
+  <form class="apf" id="apf">
+    <label><span class="k">Name</span><input name="name" required maxlength="160" autocomplete="name"></label>
+    <label><span class="k">Email</span><input name="email" type="email" required autocomplete="email"></label>
+    <label><span class="k">GitHub, site or X</span><input name="link" maxlength="300"></label>
+    <div><span class="k">Team</span><div class="opts">
+      <label><input type="radio" name="team" value="have-team" required>I have a team</label>
+      <label><input type="radio" name="team" value="solo">Solo</label>
+      <label><input type="radio" name="team" value="looking">Looking for one</label>
+    </div></div>
+    <label><span class="k">What would you build?</span><textarea name="build" rows="3" maxlength="2000"></textarea></label>
+    <input type="text" name="field_hp" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAAFLsrU-_juvQUw02" data-action="localhost-hacker" data-theme="dark" data-size="flexible"></div>
+    <div class="row2"><button class="b pri" type="submit">Apply</button><span class="msg" id="apmsg" role="status"></span></div>
+  </form>${TH.foot ? TH.foot(true) : ""}</div>
 <div class="win pop" id="schedule" hidden style="width:min(380px,calc(100vw - 32px))">${TH.chrome("Schedule", true)}
   <div class="txt">${sched}</div>${TH.foot ? TH.foot(true) : ""}</div>`;
 
@@ -435,17 +464,44 @@ if (V === 9) {
   setWatched(true);
 }
 
-// ---------- tracks list ----------
+// ---------- tracks: sealed until the sponsors lock them ----------
 const list = document.getElementById("list"), info = document.getElementById("info");
-TRACKS.forEach((tr) => {
+const sealed = Array.from({ length: 4 }, (_, i) => {
   const row = document.createElement("div");
   row.className = "row";
-  row.innerHTML = `<span>${tr.name}</span><span class="g">${tr.group.replace("Sovereign ", "")}</span>`;
+  row.innerHTML = `<span></span><span class="g">sealed</span>`;
   row.addEventListener("click", () => {
     list.querySelectorAll(".row").forEach((r) => r.classList.toggle("sel", r === row));
-    info.innerHTML = `<div class="k">${tr.group}</div>${tr.line}`;
+    info.innerHTML = `<div class="k">Track 0${i + 1} · sealed</div>Decrypts when its sponsor locks it in. Want to set one? <a href="sponsor.html">Sponsor a track →</a>`;
   });
   list.appendChild(row);
+  return row.firstChild;
+});
+const hexg = "0123456789abcdef";
+(function scramble() {
+  for (const el of sealed) el.textContent = Array.from({ length: 14 }, () => hexg[Math.random() * 16 | 0]).join("").replace(/(.{4})/g, "$1 ").trim();
+  setTimeout(scramble, 220);
+})();
+
+// ---------- apply: posts to GPCC Forms ----------
+const apf = document.getElementById("apf"), apmsg = document.getElementById("apmsg");
+apf.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = apf.querySelector("button[type=submit]");
+  btn.disabled = true; apmsg.textContent = "sending…";
+  try {
+    const res = await fetch("https://form.theschool.nyc/api/f/localhost-hacker", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.fromEntries(new FormData(apf))),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.fieldErrors ? Object.values(data.fieldErrors).join(" ") : data.error || "HTTP " + res.status);
+    apf.innerHTML = `<p class="done">${data.message || "You're on the list."}</p>`;
+  } catch (err) {
+    apmsg.textContent = err.message || "Something broke. Try again in a moment.";
+    window.turnstile?.reset();
+    btn.disabled = false;
+  }
 });
 
 // ---------- windows ----------
@@ -472,7 +528,7 @@ function open(id) {
       const x = beside ? main.right + 24 : Math.min(innerWidth - w.offsetWidth - 16, main.right - 120);
       const tr = document.getElementById("tracks");
       const below = id === "schedule" && !tr.hidden ? tr.getBoundingClientRect().bottom + 18 : main.top + 250;
-      const y = id === "tracks" ? Math.max(60, main.top - 30) : Math.min(innerHeight - w.offsetHeight - 24, below);
+      const y = id === "tracks" ? Math.max(60, main.top - 30) : id === "apply" ? Math.max(16, Math.min(innerHeight - w.offsetHeight - 16, main.top)) : Math.min(innerHeight - w.offsetHeight - 24, below);
       w.style.left = Math.max(16, x + (id === "schedule" ? 40 : 0)) + "px"; w.style.top = y + "px"; w.dataset.placed = 1;
     }
     m?.kick(.5);
