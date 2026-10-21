@@ -56,6 +56,7 @@
   .b { font: 13px var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 10px 14px; background: var(--pg); color: var(--fg); border: 1px solid var(--ln); text-decoration: none; cursor: pointer; }
   .b:hover { background: var(--fg); color: var(--pg); }
   .b.pri { background: var(--pri); color: var(--prifg); }
+  .soon { margin-top: 12px; font-size: 12px; letter-spacing: .06em; opacity: .7; }
   .b:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
   .pre, .post { padding: 12px 26px 0; font-size: 12px; line-height: 1.6; white-space: pre-wrap; color: var(--dim); }
   .post { padding-top: 18px; }
@@ -343,10 +344,11 @@ const pageHTML = `
     <p class="line2" data-c>${L2}</p>
     <div class="meta"><span class="k">When</span><span class="v" data-c>Sat, Nov 7, 2026</span><span class="k">Who</span><span class="v" data-c>100 hackers</span><span class="k">Where</span><span class="v" data-c>Williamsburg, NYC</span></div>
     <div class="ctas">
-      <a class="b pri" href="sponsor.html" data-c>Sponsor a track</a><button class="b" disabled title="Applications open soon" data-c>Apply to hack</button>
+      <a class="b pri" href="sponsor.html" data-c>Sponsor a track</a><button class="b" disabled title="More application spots open up Friday, Oct 23" data-c>Apply to hack</button>
       <span class="sp"></span>
       <button class="b ghost" data-open="tracks" data-c>Tracks →</button><button class="b ghost" data-open="schedule" data-c>Schedule →</button>
     </div>
+    <p class="soon" data-c>More application spots open up Friday, Oct 23.</p>
   </div>
   ${TH.post ? `<div class="post">${TH.post()}</div>` : ""}`;
 
