@@ -39,7 +39,9 @@ jobs:
         run: npx --yes wrangler@4.135.0 deploy
       - name: Check the live site
         run: |
-          for p in / /sponsor; do
-            code=$(curl -sL -o /dev/null -w '%{http_code}' "https://localhost-website.gpcc.workers.dev$p")
-            echo "$p -> $code"; [ "$code" = 200 ] || exit 1
+          for host in localhostai.nyc localhost-website.gpcc.workers.dev; do
+            for p in / /sponsor; do
+              code=$(curl -sL -o /dev/null -w '%{http_code}' "https://$host$p")
+              echo "$host$p -> $code"; [ "$code" = 200 ] || exit 1
+            done
           done

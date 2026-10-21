@@ -8,6 +8,7 @@
   "assets": {
     "directory": "public"
   },
+  "workers_dev": true,
   "routes": [
     { "pattern": "localhostai.nyc", "custom_domain": true },
     { "pattern": "www.localhostai.nyc", "custom_domain": true }
