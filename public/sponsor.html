@@ -39,6 +39,8 @@
   .hero p { margin-top: 28px; font: 500 clamp(19px, 2.2vw, 28px)/1.35 var(--read); max-width: 30ch; }
   .hero .when { margin-top: 18px; color: var(--mid); }
   .hero .btn { display: inline-block; margin-top: 36px; }
+  .hero .home { position: absolute; z-index: 3; top: 18px; left: 20px; color: var(--hi); text-decoration: none; padding: 6px 0; }
+  .hero .home:hover { color: var(--acid); }
   .hero .scroll { position: absolute; z-index: 2; left: 50%; bottom: 22px; transform: translateX(-50%); }
 
   section { padding: 110px 0; }
@@ -167,6 +169,7 @@
 
 <div class="hero">
   <canvas class="thermal" id="c"></canvas>
+  <a class="home k" href="/">← LOCALHOST</a>
   <div class="wrap">
     <h1><span class="s">Sponsor</span><span>LOCALHOST</span></h1>
     <p>Get access to 100 top hackers in New York's hottest emerging frontier tech hub.</p>
@@ -241,7 +244,7 @@
 
 <div class="end"><button class="btn acid" data-interest>Submit interest</button></div>
 
-<footer><div class="wrap k"><span>LOCALHOST · Sat, Nov 7, 2026</span><a href="https://theschool.nyc" target="_blank" rel="noopener">The School, NYC ↗</a></div></footer>
+<footer><div class="wrap k"><a href="/">← LOCALHOST · Sat, Nov 7, 2026</a><a href="https://theschool.nyc" target="_blank" rel="noopener">The School, NYC ↗</a></div></footer>
 
 <div class="mbar" id="mbar"><button class="btn acid" data-interest>Submit interest</button></div>
 
