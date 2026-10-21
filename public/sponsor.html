@@ -94,7 +94,7 @@
   .cell p { margin-top: 10px; font: 14.5px/1.6 var(--read); color: var(--mid); }
 
   /* tiers */
-  .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .tiers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   .tier { display: flex; flex-direction: column; border: 1px solid var(--line); background: var(--panel); }
   .tier.top { border-color: var(--acid); }
   .tier .hd { display: flex; justify-content: space-between; align-items: baseline; padding: 24px 24px 20px; border-bottom: 1px solid var(--line); }
@@ -236,10 +236,6 @@
       <div class="hd"><span>sudo</span></div>
       <ul><li>Name on the sponsor list</li><li>A prize of your own</li><li>Side booth</li></ul>
     </div>
-    <div class="tier">
-      <div class="hd"><span>user</span></div>
-      <ul><li>Name on the sponsor list, third row</li></ul>
-    </div>
   </div>
 </div></section>
 
@@ -258,7 +254,6 @@
     <div><span class="k">Tier</span><div class="opts">
       <label><input type="radio" name="tier" value="root" required>root</label>
       <label><input type="radio" name="tier" value="sudo">sudo</label>
-      <label><input type="radio" name="tier" value="user">user</label>
       <label><input type="radio" name="tier" value="not-sure">Not sure yet</label>
     </div></div>
     <label class="f"><span class="k">Anything else</span><textarea name="note" rows="3" maxlength="3000"></textarea></label>
