@@ -56,8 +56,6 @@
   .b { font: 13px var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 10px 14px; background: var(--pg); color: var(--fg); border: 1px solid var(--ln); text-decoration: none; cursor: pointer; }
   .b:hover { background: var(--fg); color: var(--pg); }
   .b.pri { background: var(--pri); color: var(--prifg); }
-  .soon { margin-top: 12px; font-size: 12px; letter-spacing: .06em; opacity: .7; }
-  .b:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
   .pre, .post { padding: 12px 26px 0; font-size: 12px; line-height: 1.6; white-space: pre-wrap; color: var(--dim); }
   .post { padding-top: 18px; }
   .list { font-size: 13px; overflow: auto; max-height: min(420px, 52vh); }
@@ -265,6 +263,7 @@
   .apf .msg { font-size: 13px; color: var(--mid, var(--dim)); }
   .apf .done, .info a { color: var(--pri); }
   .apf .done { font-size: 15px; line-height: 1.6; }
+  .apf .lead { font-size: 16px; line-height: 1.5; color: var(--hi, var(--fg)); }
   @media (max-width: 640px) {
     .corner.tr, .reticle { display: none; }
     #main { top: 53%; }
@@ -344,11 +343,10 @@ const pageHTML = `
     <p class="line2" data-c>${L2}</p>
     <div class="meta"><span class="k">When</span><span class="v" data-c>Sat, Nov 7, 2026</span><span class="k">Who</span><span class="v" data-c>50–100 hackers</span><span class="k">Where</span><span class="v" data-c>Williamsburg, NYC</span></div>
     <div class="ctas">
-      <a class="b pri" href="sponsor.html" data-c>Sponsor a track</a><button class="b" disabled title="More application spots open up Friday, Oct 23" data-c>Apply to hack</button>
+      <a class="b pri" href="sponsor.html" data-c>Sponsor a track</a><button class="b" data-open="waitlist" data-c>Apply to hack</button>
       <span class="sp"></span>
       <button class="b ghost" data-open="tracks" data-c>Tracks →</button><button class="b ghost" data-open="schedule" data-c>Schedule →</button>
     </div>
-    <p class="soon" data-c>More application spots open up Friday, Oct 23.</p>
   </div>
   ${TH.post ? `<div class="post">${TH.post()}</div>` : ""}`;
 
@@ -389,6 +387,14 @@ document.getElementById("root").innerHTML = `
     <input type="text" name="field_hp" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
     <div class="cf-turnstile" data-sitekey="0x4AAAAAAFLsrU-_juvQUw02" data-action="localhost-hacker" data-theme="dark" data-size="flexible"></div>
     <div class="row2"><button class="b pri" type="submit">Apply</button><span class="msg" id="apmsg" role="status"></span></div>
+  </form>${TH.foot ? TH.foot(true) : ""}</div>
+<div class="win pop" id="waitlist" hidden style="width:min(400px,calc(100vw - 32px))">${TH.chrome("Apply", true)}
+  <form class="apf" id="wlf">
+    <p class="lead">More application spots open up Friday, Oct 23.</p>
+    <label><span class="k">Email me the link</span><input name="email" type="email" required autocomplete="email" placeholder="you@example.com"></label>
+    <input type="text" name="field_hp" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAAFLsrU-_juvQUw02" data-action="localhost-waitlist" data-theme="dark" data-size="flexible"></div>
+    <div class="row2"><button class="b pri" type="submit">Notify me</button><span class="msg" id="wlmsg" role="status"></span></div>
   </form>${TH.foot ? TH.foot(true) : ""}</div>
 <div class="win pop" id="schedule" hidden style="width:min(380px,calc(100vw - 32px))">${TH.chrome("Schedule", true)}
   <div class="txt">${sched}</div>${TH.foot ? TH.foot(true) : ""}</div>`;
@@ -489,26 +495,30 @@ const hexg = "0123456789abcdef";
   setTimeout(scramble, 220);
 })();
 
-// ---------- apply: posts to GPCC Forms ----------
-const apf = document.getElementById("apf"), apmsg = document.getElementById("apmsg");
-apf.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const btn = apf.querySelector("button[type=submit]");
-  btn.disabled = true; apmsg.textContent = "sending…";
-  try {
-    const res = await fetch("https://form.theschool.nyc/api/f/localhost-hacker", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.fromEntries(new FormData(apf))),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.fieldErrors ? Object.values(data.fieldErrors).join(" ") : data.error || "HTTP " + res.status);
-    apf.innerHTML = `<p class="done">${data.message || "You're on the list."}</p>`;
-  } catch (err) {
-    apmsg.textContent = err.message || "Something broke. Try again in a moment.";
-    window.turnstile?.reset();
-    btn.disabled = false;
-  }
-});
+// ---------- apply + waitlist: post to GPCC Forms ----------
+// "Apply to hack" opens the waitlist until applications open (Fri Oct 23); #apply is the full form.
+function postForm(form, slug, msg) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector("button[type=submit]");
+    btn.disabled = true; msg.textContent = "sending…";
+    try {
+      const res = await fetch("https://form.theschool.nyc/api/f/" + slug, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(new FormData(form))),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.fieldErrors ? Object.values(data.fieldErrors).join(" ") : data.error || "HTTP " + res.status);
+      form.innerHTML = `<p class="done">${data.message || "You're on the list."}</p>`;
+    } catch (err) {
+      msg.textContent = err.message || "Something broke. Try again in a moment.";
+      window.turnstile?.reset(form.querySelector(".cf-turnstile"));
+      btn.disabled = false;
+    }
+  });
+}
+postForm(document.getElementById("apf"), "localhost-hacker", document.getElementById("apmsg"));
+postForm(document.getElementById("wlf"), "localhost-waitlist", document.getElementById("wlmsg"));
 
 // ---------- windows ----------
 let z = 20;
@@ -534,7 +544,7 @@ function open(id) {
       const x = beside ? main.right + 24 : Math.min(innerWidth - w.offsetWidth - 16, main.right - 120);
       const tr = document.getElementById("tracks");
       const below = id === "schedule" && !tr.hidden ? tr.getBoundingClientRect().bottom + 18 : main.top + 250;
-      const y = id === "tracks" ? Math.max(60, main.top - 30) : id === "apply" ? Math.max(16, Math.min(innerHeight - w.offsetHeight - 16, main.top)) : Math.min(innerHeight - w.offsetHeight - 24, below);
+      const y = id === "tracks" ? Math.max(60, main.top - 30) : id === "apply" || id === "waitlist" ? Math.max(16, Math.min(innerHeight - w.offsetHeight - 16, main.top)) : Math.min(innerHeight - w.offsetHeight - 24, below);
       w.style.left = Math.max(16, x + (id === "schedule" ? 40 : 0)) + "px"; w.style.top = y + "px"; w.dataset.placed = 1;
     }
     m?.kick(.5);

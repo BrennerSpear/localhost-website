@@ -47,7 +47,7 @@
 <div class="wrap">
   <a class="home k" href="/">← LOCALHOST</a>
   <h1>Results</h1>
-  <p class="lede">Sponsor interest and hacker applications. Enter the passphrase to unlock them in this browser.</p>
+  <p class="lede">Sponsor interest, hacker applications and the waitlist. Enter the passphrase to unlock them in this browser.</p>
   <form class="unlock" id="unlock" autocomplete="off">
     <input id="pp" type="password" placeholder="xxxx-xxxx-xxxx-xxxx-xxxx" aria-label="Passphrase" autocomplete="off" spellcheck="false" required>
     <button id="go" type="submit">Unlock</button>
@@ -60,7 +60,7 @@
 // Made by `npm run results-keys` in gpcc-forms (src/lib/results.ts has the scheme).
 const KEY = {"iterations":600000,"salt":"fjJY_Rj3HK5cPDXbfGRdMw","iv":"pDIU9abaQ7RJ_fOt","wrapped":"YbJjkt8v-pJFmnCK9v_VzVSxc0KFwg44HB_bw6ZpNmMErZO_At-SgmuLsQrT6F292yqgdJ4UabX4dj1CD3Bl0p7-J-IZ-QZAr-3C57m2nU6v0GHJ2cgivWYs39q5L0qSCWkkUZrpwiAnVjzLX8rCSc5JoKn_VgU-zNlIMlIOjKVFToW_HKmTn2JGENv1xbOOk-elKNSCZk0rX221Sg9K1dWOn_BaTzI"};
 const API = "https://form.theschool.nyc/api/f/";
-const FORMS = [["localhost-sponsor", "Sponsors"], ["localhost-hacker", "Hackers"]];
+const FORMS = [["localhost-sponsor", "Sponsors"], ["localhost-hacker", "Hackers"], ["localhost-waitlist", "Waitlist"]];
 const INFO = "gpcc-forms results v1";
 const LONG = new Set(["note", "build"]);
 
