@@ -266,7 +266,14 @@
   .apf .lead { font-size: 16px; line-height: 1.5; color: var(--hi, var(--fg)); }
   @media (max-width: 640px) {
     .corner.tr, .reticle { display: none; }
-    #main { top: 53%; }
+    /* phones: the page scrolls; the main window sits in the flow below the REC label */
+    body { overflow-x: hidden; overflow-y: auto; display: flex; flex-direction: column; min-height: 100svh; }
+    .corner.tl { position: absolute; }
+    #root { order: 1; padding: 58px 12px 0; }
+    #main { position: relative; left: auto !important; top: auto !important; transform: none !important; width: 100%; }
+    .school { order: 2; position: static; transform: none; align-self: center; margin: 22px 0 28px; }
+    .ctas .b:not(.ghost) { flex: 1 1 100%; text-align: center; }
+    [data-t="9"] .ctas .b.ghost { padding-left: 0; padding-right: 20px; }
     .line1 { font-size: 18px; }
     [data-t="9"] .line1 { font-size: 21px; margin-top: 24px; } [data-t="9"] .line2 { font-size: 15px; } [data-t="9"] .copy { padding: 0 18px; }
     [data-t="9"] .meta { grid-template-columns: auto 1fr; }
@@ -572,7 +579,7 @@ document.querySelectorAll(".win").forEach((w) => {
   const bar = w.querySelector(".ch");
   let drag = null;
   bar.style.cursor = "grab"; bar.style.userSelect = "none";
-  bar.addEventListener("pointerdown", (e) => { if (e.target.closest("button")) return; const r = w.getBoundingClientRect(); drag = [e.clientX - r.left, e.clientY - r.top]; bar.setPointerCapture(e.pointerId); });
+  bar.addEventListener("pointerdown", (e) => { if (e.target.closest("button") || (w.id === "main" && matchMedia("(max-width: 640px)").matches)) return; const r = w.getBoundingClientRect(); drag = [e.clientX - r.left, e.clientY - r.top]; bar.setPointerCapture(e.pointerId); });
   bar.addEventListener("pointermove", (e) => { if (!drag) return; w.dataset.dragged = 1; w.style.transition = "none"; w.style.transform = "none"; w.style.left = e.clientX - drag[0] + "px"; w.style.top = e.clientY - drag[1] + "px"; });
   bar.addEventListener("pointerup", () => { drag = null; });
 });
