@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOCALHOST Results</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0c0e11">
+<link rel="stylesheet" href="shared/base.css">
+<style>
+  @font-face { font-family: "IBM Plex Mono"; src: url("fonts/IBMPlexMono-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "IBM Plex Mono"; src: url("fonts/IBMPlexMono-500.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+  :root { --bg: #0c0e11; --panel: #12161b; --line: #2a3038; --hi: #f2f4f6; --mid: #a7b0ba; --lo: #6b747e; --read: "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+  body { background: var(--bg); color: var(--hi); font-family: var(--read); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 32px; }
+  .k { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--lo); }
+  a.home { color: var(--hi); text-decoration: none; } a.home:hover { color: var(--acid); }
+  h1 { font-weight: normal; font-size: clamp(36px, 6vw, 72px); margin: 28px 0 8px; }
+  .lede { color: var(--mid); max-width: 60ch; line-height: 1.5; }
+  form.unlock { margin-top: 32px; display: flex; gap: 10px; flex-wrap: wrap; }
+  input { font: 15px var(--read); padding: 12px; background: var(--panel); color: var(--hi); border: 1px solid var(--line); border-radius: 0; width: min(360px, 100%); }
+  input:focus { outline: 1px solid var(--acid); }
+  button { font: 13px var(--read); letter-spacing: .1em; text-transform: uppercase; padding: 12px 18px; background: var(--acid); color: #0b0b0c; border: 0; cursor: pointer; }
+  button.ghost { background: none; color: var(--hi); border: 1px solid var(--line); }
+  button:disabled { opacity: .5; cursor: wait; }
+  .msg { margin-top: 12px; color: var(--mid); min-height: 1.4em; }
+  .msg.bad { color: #ff6b6b; }
+  section { margin-top: 48px; }
+  .hd { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+  .hd h2 { font-weight: 500; font-size: 20px; } .hd .n { color: var(--acid); } .hd .sp { flex: 1; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); }
+  th { font-weight: normal; color: var(--lo); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+  td { line-height: 1.45; } td.long { min-width: 24ch; max-width: 48ch; white-space: pre-wrap; } td.at { white-space: nowrap; color: var(--mid); }
+  td a { color: var(--hi); }
+  .empty { color: var(--lo); padding: 16px 0; }
+  .note { margin-top: 56px; color: var(--lo); font-size: 12px; line-height: 1.6; max-width: 72ch; }
+  @media (max-width: 640px) { .wrap { padding: 20px 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="home k" href="/">← LOCALHOST</a>
+  <h1>Results</h1>
+  <p class="lede">Sponsor interest and hacker applications. Enter the passphrase to unlock them in this browser.</p>
+  <form class="unlock" id="unlock" autocomplete="off">
+    <input id="pp" type="password" placeholder="xxxx-xxxx-xxxx-xxxx-xxxx" aria-label="Passphrase" autocomplete="off" spellcheck="false" required>
+    <button id="go" type="submit">Unlock</button>
+  </form>
+  <div class="msg" id="msg" role="status"></div>
+  <div id="out"></div>
+  <p class="note">The passphrase never leaves this page. It unlocks the key that decrypts the results, and proves to the forms server that you may download them. The server only sends them encrypted to that key. Closing the tab locks them again.</p>
+</div>
+<script>
+// Made by `npm run results-keys` in gpcc-forms (src/lib/results.ts has the scheme).
+const KEY = {"iterations":600000,"salt":"fjJY_Rj3HK5cPDXbfGRdMw","iv":"pDIU9abaQ7RJ_fOt","wrapped":"YbJjkt8v-pJFmnCK9v_VzVSxc0KFwg44HB_bw6ZpNmMErZO_At-SgmuLsQrT6F292yqgdJ4UabX4dj1CD3Bl0p7-J-IZ-QZAr-3C57m2nU6v0GHJ2cgivWYs39q5L0qSCWkkUZrpwiAnVjzLX8rCSc5JoKn_VgU-zNlIMlIOjKVFToW_HKmTn2JGENv1xbOOk-elKNSCZk0rX221Sg9K1dWOn_BaTzI"};
+const API = "https://form.theschool.nyc/api/f/";
+const FORMS = [["localhost-sponsor", "Sponsors"], ["localhost-hacker", "Hackers"]];
+const INFO = "gpcc-forms results v1";
+const LONG = new Set(["note", "build"]);
+
+const enc = new TextEncoder();
+const unb64 = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+const b64 = (b) => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+async function unlock(pass) {
+  const base = await crypto.subtle.importKey("raw", enc.encode(pass.trim().toLowerCase()), "PBKDF2", false, ["deriveBits"]);
+  const bits = new Uint8Array(await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: unb64(KEY.salt), iterations: KEY.iterations }, base, 512));
+  const wrapKey = await crypto.subtle.importKey("raw", bits.slice(0, 32), "AES-GCM", false, ["decrypt"]);
+  let jwk;
+  try {
+    jwk = JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(KEY.iv) }, wrapKey, unb64(KEY.wrapped))));
+  } catch { return null; }
+  const priv = await crypto.subtle.importKey("jwk", { kty: "EC", crv: "P-256", ...jwk, ext: false }, { name: "ECDH", namedCurve: "P-256" }, false, ["deriveBits"]);
+  return { priv, token: b64(bits.slice(32)) };
+}
+
+async function openSealed(priv, j) {
+  const epk = await crypto.subtle.importKey("raw", unb64(j.epk), { name: "ECDH", namedCurve: "P-256" }, false, []);
+  const shared = await crypto.subtle.deriveBits({ name: "ECDH", public: epk }, priv, 256);
+  const hk = await crypto.subtle.importKey("raw", shared, "HKDF", false, ["deriveKey"]);
+  const key = await crypto.subtle.deriveKey({ name: "HKDF", hash: "SHA-256", salt: new Uint8Array(0), info: enc.encode(INFO) }, hk, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(j.iv) }, key, unb64(j.ct))));
+}
+
+const when = (t) => new Date(t * 1000).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+const cell = (name, v) => {
+  if (name === "email" && v) return `<a href="mailto:${esc(v)}">${esc(v)}</a>`;
+  if (name === "link" && /^https?:\/\//i.test(v)) return `<a href="${esc(v)}" target="_blank" rel="noopener noreferrer">${esc(v)}</a>`;
+  return esc(v);
+};
+
+function csv(data) {
+  const q = (s) => `"${String(s ?? "").replace(/"/g, '""')}"`;
+  const head = ["Received", "Ref", ...data.form.fields.map((f) => f.label)];
+  const lines = [head.map(q).join(","), ...data.rows.map((r) => [new Date(r.at * 1000).toISOString(), r.ref, ...data.form.fields.map((f) => r.answers[f.name])].map(q).join(","))];
+  return new Blob([lines.join("\n")], { type: "text/csv" });
+}
+
+function render(slug, title, data) {
+  const s = document.createElement("section");
+  const rows = data.rows;
+  s.innerHTML = `<div class="hd"><h2>${esc(title)}</h2><span class="n">${rows.length}</span><span class="sp"></span>${rows.length ? '<button class="ghost" type="button">Download CSV</button>' : ""}</div>` +
+    (rows.length
+      ? `<div class="scroll"><table><thead><tr><th>Received</th>${data.form.fields.map((f) => `<th>${esc(f.label)}</th>`).join("")}</tr></thead><tbody>` +
+        rows.map((r) => `<tr><td class="at">${when(r.at)}</td>${data.form.fields.map((f) => `<td${LONG.has(f.name) ? ' class="long"' : ""}>${cell(f.name, r.answers[f.name] ?? "")}</td>`).join("")}</tr>`).join("") +
+        "</tbody></table></div>"
+      : '<div class="empty">Nothing yet.</div>');
+  const b = s.querySelector("button");
+  if (b) b.onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(csv(data)); a.download = `${slug}-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); };
+  return s;
+}
+
+$("unlock").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const msg = $("msg"), go = $("go");
+  msg.className = "msg"; msg.textContent = "Unlocking…"; go.disabled = true;
+  try {
+    const k = await unlock($("pp").value);
+    if (!k) { msg.className = "msg bad"; msg.textContent = "That passphrase doesn't unlock it."; return; }
+    const out = $("out"); out.replaceChildren();
+    for (const [slug, title] of FORMS) {
+      const r = await fetch(API + slug + "/results", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: k.token }), cache: "no-store" });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error(j.error || `HTTP ${r.status}`);
+      out.append(render(slug, title, await openSealed(k.priv, j)));
+    }
+    $("pp").value = ""; $("unlock").hidden = true;
+    msg.textContent = `Unlocked ${new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}. Reload to lock.`;
+  } catch (err) {
+    msg.className = "msg bad"; msg.textContent = `Couldn't load the results (${err.message}).`;
+  } finally { go.disabled = false; }
+});
+</script>
+</body>
+</html>
