@@ -1,0 +1,45 @@
+name: Deploy to Cloudflare
+# Every push to main (merges included) redeploys the Worker + static assets in public/.
+# Runs only on main: no pull_request triggers, so fork PRs never see the deploy token.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # The token lives in this environment, which only the main branch may use.
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      - name: Require the deploy token
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN is not set in the 'production' environment; see README (Deploy)."
+            exit 1
+          fi
+      - name: wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: c2ce5c0b362e73c6248f4e0d46c6c314
+        run: npx --yes wrangler@4.135.0 deploy
+      - name: Check the live site
+        run: |
+          for p in / /sponsor; do
+            code=$(curl -sL -o /dev/null -w '%{http_code}' "https://localhost-website.gpcc.workers.dev$p")
+            echo "$p -> $code"; [ "$code" = 200 ] || exit 1
+          done
