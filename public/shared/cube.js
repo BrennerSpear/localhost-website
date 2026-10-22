@@ -38,10 +38,12 @@ export function cube(canvas, { cycle = 16 } = {}) {
         ctx.lineWidth = s * (0.035 + 0.04 * front);
         ctx.beginPath(); ctx.moveTo(P[i][0], P[i][1]); ctx.lineTo(P[j][0], P[j][1]); ctx.stroke();
       });
-    ctx.fillStyle = "#fff";
-    P.forEach(([x, y, z]) => {
-      if (z > 0.2) return;
-      ctx.beginPath(); ctx.arc(x, y, s * 0.045, 0, Math.PI * 2); ctx.fill();
+    // every vertex, always: size and brightness ease with depth, so nothing pops as it turns
+    P.slice().sort((p, q) => q[2] - p[2]).forEach(([x, y, z]) => {
+      const front = Math.min(1, Math.max(0, (1.6 - z) / 3.2));
+      const e = front * front * (3 - 2 * front);
+      ctx.fillStyle = `rgba(255,255,255,${0.25 + 0.75 * e})`;
+      ctx.beginPath(); ctx.arc(x, y, s * (0.025 + 0.025 * e), 0, Math.PI * 2); ctx.fill();
     });
   };
   if (still) return draw(cycle * 0.12);
