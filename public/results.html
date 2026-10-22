@@ -59,10 +59,16 @@
 <script>
 // Made by `npm run results-keys` in gpcc-forms (src/lib/results.ts has the scheme).
 const KEY = {"iterations":600000,"salt":"fjJY_Rj3HK5cPDXbfGRdMw","iv":"pDIU9abaQ7RJ_fOt","wrapped":"YbJjkt8v-pJFmnCK9v_VzVSxc0KFwg44HB_bw6ZpNmMErZO_At-SgmuLsQrT6F292yqgdJ4UabX4dj1CD3Bl0p7-J-IZ-QZAr-3C57m2nU6v0GHJ2cgivWYs39q5L0qSCWkkUZrpwiAnVjzLX8rCSc5JoKn_VgU-zNlIMlIOjKVFToW_HKmTn2JGENv1xbOOk-elKNSCZk0rX221Sg9K1dWOn_BaTzI"};
-const API = "https://form.theschool.nyc/api/f/";
+// On localhost, read a local GPCC Forms (`npm run dev`, :8787, or ?api=<origin>).
+const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+const API = (LOCAL ? (new URLSearchParams(location.search).get("api") || "http://127.0.0.1:8787").replace(/\/+$/, "") : "https://form.theschool.nyc") + "/api/f/";
 const FORMS = [["localhost-sponsor", "Sponsors"], ["localhost-hacker", "Hackers"], ["localhost-waitlist", "Waitlist"]];
 const INFO = "gpcc-forms results v1";
-const LONG = new Set(["note", "build"]);
+const LONG = new Set(["note", "build", "built", "why"]);
+// Referral codes: hacker rows carry their own code; hacker + waitlist rows carry the code they came in through.
+const ISSUES = "localhost-hacker";
+const REFERRED = new Set(["localhost-hacker", "localhost-waitlist"]);
+const byCode = new Map(); // code -> applicant name
 
 const enc = new TextEncoder();
 const unb64 = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
@@ -93,28 +99,50 @@ async function openSealed(priv, j) {
 const when = (t) => new Date(t * 1000).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 const cell = (name, v) => {
   if (name === "email" && v) return `<a href="mailto:${esc(v)}">${esc(v)}</a>`;
-  if (name === "link" && /^https?:\/\//i.test(v)) return `<a href="${esc(v)}" target="_blank" rel="noopener noreferrer">${esc(v)}</a>`;
+  if ((name === "link" || name === "github" || name === "x") && /^https?:\/\//i.test(v)) return `<a href="${esc(v)}" target="_blank" rel="noopener noreferrer">${esc(v)}</a>`;
   return esc(v);
 };
 
-function csv(data) {
+const referrer = (code) => (code ? (byCode.has(code) ? `${byCode.get(code)} (${code})` : code) : "");
+
+function csv(slug, data) {
   const q = (s) => `"${String(s ?? "").replace(/"/g, '""')}"`;
-  const head = ["Received", "Ref", ...data.form.fields.map((f) => f.label)];
-  const lines = [head.map(q).join(","), ...data.rows.map((r) => [new Date(r.at * 1000).toISOString(), r.ref, ...data.form.fields.map((f) => r.answers[f.name])].map(q).join(","))];
+  const iss = slug === ISSUES, refd = REFERRED.has(slug);
+  const head = ["Received", "Ref", ...data.form.fields.map((f) => f.label), ...(iss ? ["Code"] : []), ...(refd ? ["Referred by"] : [])];
+  const lines = [head.map(q).join(","), ...data.rows.map((r) => [new Date(r.at * 1000).toISOString(), r.ref, ...data.form.fields.map((f) => r.answers[f.name]), ...(iss ? [r.code] : []), ...(refd ? [referrer(r.referredBy)] : [])].map(q).join(","))];
   return new Blob([lines.join("\n")], { type: "text/csv" });
 }
 
 function render(slug, title, data) {
   const s = document.createElement("section");
   const rows = data.rows;
+  const iss = slug === ISSUES, refd = REFERRED.has(slug);
+  if (iss) for (const r of rows) if (r.code) byCode.set(r.code, r.answers.name || "?");
+  const extraHead = (iss ? "<th>Code</th>" : "") + (refd ? "<th>Referred by</th>" : "");
+  const extra = (r) => (iss ? `<td>${esc(r.code ?? "")}</td>` : "") + (refd ? `<td>${esc(referrer(r.referredBy))}</td>` : "");
   s.innerHTML = `<div class="hd"><h2>${esc(title)}</h2><span class="n">${rows.length}</span><span class="sp"></span>${rows.length ? '<button class="ghost" type="button">Download CSV</button>' : ""}</div>` +
     (rows.length
-      ? `<div class="scroll"><table><thead><tr><th>Received</th>${data.form.fields.map((f) => `<th>${esc(f.label)}</th>`).join("")}</tr></thead><tbody>` +
-        rows.map((r) => `<tr><td class="at">${when(r.at)}</td>${data.form.fields.map((f) => `<td${LONG.has(f.name) ? ' class="long"' : ""}>${cell(f.name, r.answers[f.name] ?? "")}</td>`).join("")}</tr>`).join("") +
+      ? `<div class="scroll"><table><thead><tr><th>Received</th>${data.form.fields.map((f) => `<th>${esc(f.label)}</th>`).join("")}${extraHead}</tr></thead><tbody>` +
+        rows.map((r) => `<tr><td class="at">${when(r.at)}</td>${data.form.fields.map((f) => `<td${LONG.has(f.name) ? ' class="long"' : ""}>${cell(f.name, r.answers[f.name] ?? "")}</td>`).join("")}${extra(r)}</tr>`).join("") +
         "</tbody></table></div>"
       : '<div class="empty">Nothing yet.</div>');
   const b = s.querySelector("button");
-  if (b) b.onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(csv(data)); a.download = `${slug}-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); };
+  if (b) b.onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(csv(slug, data)); a.download = `${slug}-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); };
+  return s;
+}
+
+// Per referrer: code -> applicant, how many applications (and waitlist sign-ups) came through their link.
+function referrals(loaded) {
+  const count = (slug) => { const m = new Map(); for (const r of loaded[slug]?.rows ?? []) if (r.referredBy) m.set(r.referredBy, (m.get(r.referredBy) ?? 0) + 1); return m; };
+  const apps = count("localhost-hacker"), wait = count("localhost-waitlist");
+  const codes = [...new Set([...apps.keys(), ...wait.keys()])].sort((a, b) => (apps.get(b) ?? 0) - (apps.get(a) ?? 0) || (wait.get(b) ?? 0) - (wait.get(a) ?? 0));
+  const s = document.createElement("section");
+  s.innerHTML = `<div class="hd"><h2>Referrals</h2><span class="n">${codes.length}</span></div>` +
+    (codes.length
+      ? `<div class="scroll"><table><thead><tr><th>Code</th><th>Applicant</th><th>Applications referred</th><th>Waitlist referred</th></tr></thead><tbody>` +
+        codes.map((c) => `<tr><td>${esc(c)}</td><td>${esc(byCode.get(c) ?? "unknown")}</td><td>${apps.get(c) ?? 0}</td><td>${wait.get(c) ?? 0}</td></tr>`).join("") +
+        "</tbody></table></div>"
+      : '<div class="empty">No referred applications yet.</div>');
   return s;
 }
 
@@ -125,13 +153,16 @@ $("unlock").addEventListener("submit", async (e) => {
   try {
     const k = await unlock($("pp").value);
     if (!k) { msg.className = "msg bad"; msg.textContent = "That passphrase doesn't unlock it."; return; }
-    const out = $("out"); out.replaceChildren();
+    const out = $("out"); out.replaceChildren(); byCode.clear();
+    const loaded = {};
     for (const [slug, title] of FORMS) {
       const r = await fetch(API + slug + "/results", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: k.token }), cache: "no-store" });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok) throw new Error(j.error || `HTTP ${r.status}`);
-      out.append(render(slug, title, await openSealed(k.priv, j)));
+      loaded[slug] = await openSealed(k.priv, j);
+      out.append(render(slug, title, loaded[slug]));
     }
+    out.append(referrals(loaded));
     $("pp").value = ""; $("unlock").hidden = true;
     msg.textContent = `Unlocked ${new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}. Reload to lock.`;
   } catch (err) {

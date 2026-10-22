@@ -14,7 +14,6 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#0c0e11">
 <link rel="stylesheet" href="shared/base.css">
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
   @font-face { font-family: "IBM Plex Mono"; src: url("fonts/IBMPlexMono-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
   @font-face { font-family: "IBM Plex Mono"; src: url("fonts/IBMPlexMono-500.woff2") format("woff2"); font-weight: 500; font-display: swap; }
@@ -249,21 +248,7 @@
   [data-t="9"] .cstate.locked::before { background: var(--lo); }
   [data-t="9"] .list, [data-t="9"] .info { font-family: var(--read); }
   [data-t="9"] .info { font-size: 14px; }
-  .apf { display: grid; gap: 14px; padding: 16px 18px 18px; max-height: calc(100svh - 110px); overflow: auto; font-family: var(--read, var(--mono)); font-size: 14px; }
-  .apf label { display: grid; gap: 6px; }
-  .apf .k { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--lo, var(--dim)); }
-  .apf input, .apf textarea { font: 14px var(--read, var(--mono)); padding: 10px; background: #000; color: var(--fg); border: 1px solid var(--ln); border-radius: 0; }
-  .apf input:focus, .apf textarea:focus { outline: 1px solid var(--pri); border-color: var(--pri); }
-  .apf .opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-  .apf .opts label { display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--ln); cursor: pointer; }
-  .apf .opts input { accent-color: #c8ff00; }
-  .apf .opts label:has(input:checked) { border-color: var(--pri); color: var(--pri); }
-  .apf .hp { position: absolute; left: -9999px; width: 1px; height: 1px; }
-  .apf .row2 { display: flex; align-items: center; gap: 14px; }
-  .apf .msg { font-size: 13px; color: var(--mid, var(--dim)); }
-  .apf .done, .info a { color: var(--pri); }
-  .apf .done { font-size: 15px; line-height: 1.6; }
-  .apf .lead { font-size: 16px; line-height: 1.5; color: var(--hi, var(--fg)); }
+  .info a { color: var(--pri); }
   @media (max-width: 640px) {
     .corner.tr, .reticle { display: none; }
     /* phones: the page scrolls; the main window sits in the flow below the REC label */
@@ -295,6 +280,7 @@
 <script type="module">
 import { thermal } from "./shared/thermal.js";
 import { mosh } from "./shared/mosh.js";
+import "./shared/forms.js"; // keeps a ?ref= share code for apply.html
 
 const N = 10;
 const V = 9;
@@ -350,7 +336,7 @@ const pageHTML = `
     <p class="line2" data-c>${L2}</p>
     <div class="meta"><span class="k">When</span><span class="v" data-c>Sat, Nov 7, 2026</span><span class="k">Who</span><span class="v" data-c>50–100 hackers</span><span class="k">Where</span><span class="v" data-c>Williamsburg, NYC</span></div>
     <div class="ctas">
-      <a class="b pri" href="sponsor.html" data-c>Sponsor a track</a><button class="b" data-open="waitlist" data-c>Apply to hack</button>
+      <a class="b pri" href="sponsor.html" data-c>Sponsor a track</a><a class="b" href="apply.html" data-c>Apply to hack</a>
       <span class="sp"></span>
       <button class="b ghost" data-open="tracks" data-c>Tracks →</button><button class="b ghost" data-open="schedule" data-c>Schedule →</button>
     </div>
@@ -380,29 +366,6 @@ document.getElementById("root").innerHTML = `
 <div class="win pop" id="tracks" hidden style="width:min(460px,calc(100vw - 32px))">${TH.chrome("Tracks", true)}
   <div class="list" id="list"><div class="hdr"><span>Name</span><span>Status</span></div></div>
   <div class="info" id="info"><span class="k">Encrypted.</span> Tracks are set with our sponsors and decrypt closer to the day.</div>${TH.foot ? TH.foot(true) : ""}</div>
-<div class="win pop" id="apply" hidden style="width:min(440px,calc(100vw - 32px))">${TH.chrome("Apply", true)}
-  <form class="apf" id="apf">
-    <label><span class="k">Name</span><input name="name" required maxlength="160" autocomplete="name"></label>
-    <label><span class="k">Email</span><input name="email" type="email" required autocomplete="email"></label>
-    <label><span class="k">GitHub, site or X</span><input name="link" maxlength="300"></label>
-    <div><span class="k">Team</span><div class="opts">
-      <label><input type="radio" name="team" value="have-team" required>I have a team</label>
-      <label><input type="radio" name="team" value="solo">Solo</label>
-      <label><input type="radio" name="team" value="looking">Looking for one</label>
-    </div></div>
-    <label><span class="k">What would you build?</span><textarea name="build" rows="3" maxlength="2000"></textarea></label>
-    <input type="text" name="field_hp" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
-    <div class="cf-turnstile" data-sitekey="0x4AAAAAAFLsrU-_juvQUw02" data-action="localhost-hacker" data-theme="dark" data-size="flexible"></div>
-    <div class="row2"><button class="b pri" type="submit">Apply</button><span class="msg" id="apmsg" role="status"></span></div>
-  </form>${TH.foot ? TH.foot(true) : ""}</div>
-<div class="win pop" id="waitlist" hidden style="width:min(400px,calc(100vw - 32px))">${TH.chrome("Apply", true)}
-  <form class="apf" id="wlf">
-    <p class="lead">More application spots open up Friday, Oct 23.</p>
-    <label><span class="k">Email me the link</span><input name="email" type="email" required autocomplete="email" placeholder="you@example.com"></label>
-    <input type="text" name="field_hp" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
-    <div class="cf-turnstile" data-sitekey="0x4AAAAAAFLsrU-_juvQUw02" data-action="localhost-waitlist" data-theme="dark" data-size="flexible"></div>
-    <div class="row2"><button class="b pri" type="submit">Notify me</button><span class="msg" id="wlmsg" role="status"></span></div>
-  </form>${TH.foot ? TH.foot(true) : ""}</div>
 <div class="win pop" id="schedule" hidden style="width:min(380px,calc(100vw - 32px))">${TH.chrome("Schedule", true)}
   <div class="txt">${sched}</div>${TH.foot ? TH.foot(true) : ""}</div>`;
 
@@ -413,9 +376,16 @@ const heroEl = document.getElementById("hero");
 const [hb, hi, ha] = TH.hero;
 await document.fonts.load('40px "Departure Mono"');
 let m = null;
+// The hero takes its window's width. Re-measured on resize (rotation, DevTools device mode)
+// before mosh's own resize listener redraws it, so it never props the page wider than the screen.
+const sizeHero = () => {
+  heroEl.style.width = "100%";
+  const w = heroEl.parentElement.getBoundingClientRect().width;
+  heroEl.style.width = w + "px"; heroEl.style.height = Math.round(w * .23) + "px";
+};
 function startHero() {
-  const box = heroEl.parentElement.getBoundingClientRect();
-  heroEl.style.width = box.width + "px"; heroEl.style.height = Math.round(box.width * .23) + "px";
+  sizeHero();
+  addEventListener("resize", sizeHero);
   m = mosh(heroEl, (c, W, H) => {
     c.fillStyle = hb; c.fillRect(0, 0, W, H);
     const padX = Math.round(W * .037);
@@ -502,31 +472,6 @@ const hexg = "0123456789abcdef";
   setTimeout(scramble, 220);
 })();
 
-// ---------- apply + waitlist: post to GPCC Forms ----------
-// "Apply to hack" opens the waitlist until applications open (Fri Oct 23); #apply is the full form.
-function postForm(form, slug, msg) {
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const btn = form.querySelector("button[type=submit]");
-    btn.disabled = true; msg.textContent = "sending…";
-    try {
-      const res = await fetch("https://form.theschool.nyc/api/f/" + slug, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(new FormData(form))),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.fieldErrors ? Object.values(data.fieldErrors).join(" ") : data.error || "HTTP " + res.status);
-      form.innerHTML = `<p class="done">${data.message || "You're on the list."}</p>`;
-    } catch (err) {
-      msg.textContent = err.message || "Something broke. Try again in a moment.";
-      window.turnstile?.reset(form.querySelector(".cf-turnstile"));
-      btn.disabled = false;
-    }
-  });
-}
-postForm(document.getElementById("apf"), "localhost-hacker", document.getElementById("apmsg"));
-postForm(document.getElementById("wlf"), "localhost-waitlist", document.getElementById("wlmsg"));
-
 // ---------- windows ----------
 let z = 20;
 const focus = (w) => { document.querySelectorAll(".win").forEach((o) => o.classList.toggle("focus", o === w)); w.style.zIndex = ++z; };
@@ -551,7 +496,7 @@ function open(id) {
       const x = beside ? main.right + 24 : Math.min(innerWidth - w.offsetWidth - 16, main.right - 120);
       const tr = document.getElementById("tracks");
       const below = id === "schedule" && !tr.hidden ? tr.getBoundingClientRect().bottom + 18 : main.top + 250;
-      const y = id === "tracks" ? Math.max(60, main.top - 30) : id === "apply" || id === "waitlist" ? Math.max(16, Math.min(innerHeight - w.offsetHeight - 16, main.top)) : Math.min(innerHeight - w.offsetHeight - 24, below);
+      const y = id === "tracks" ? Math.max(60, main.top - 30) : Math.min(innerHeight - w.offsetHeight - 24, below);
       w.style.left = Math.max(16, x + (id === "schedule" ? 40 : 0)) + "px"; w.style.top = y + "px"; w.dataset.placed = 1;
     }
     m?.kick(.5);
