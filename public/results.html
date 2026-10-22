@@ -38,6 +38,8 @@
   th { font-weight: normal; color: var(--lo); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
   td { line-height: 1.45; } td.long { min-width: 24ch; max-width: 48ch; white-space: pre-wrap; } td.at { white-space: nowrap; color: var(--mid); }
   td a { color: var(--hi); }
+  .ok { color: var(--acid); } .bad { color: #ff6b6b; } .na { color: var(--lo); }
+  td.mail { white-space: nowrap; }
   .empty { color: var(--lo); padding: 16px 0; }
   .note { margin-top: 56px; color: var(--lo); font-size: 12px; line-height: 1.6; max-width: 72ch; }
   @media (max-width: 640px) { .wrap { padding: 20px 16px; } }
@@ -69,6 +71,9 @@ const LONG = new Set(["note", "build", "built", "why"]);
 const ISSUES = "localhost-hacker";
 const REFERRED = new Set(["localhost-hacker", "localhost-waitlist"]);
 const byCode = new Map(); // code -> applicant name
+// Forms that email: each row says whether Resend took the email to you and the note to the applicant
+// (notified / confirmed; absent = not attempted or from before 2026-10-22).
+const MAILS = new Set(["localhost-hacker", "localhost-sponsor"]);
 
 const enc = new TextEncoder();
 const unb64 = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
@@ -104,22 +109,27 @@ const cell = (name, v) => {
 };
 
 const referrer = (code) => (code ? (byCode.has(code) ? `${byCode.get(code)} (${code})` : code) : "");
+const SAME_IP = "same IP as referrer";
+const mark = (v) => (v === true ? "✓" : v === false ? "✗" : "–");
+const markHtml = (v) => `<span class="${v === true ? "ok" : v === false ? "bad" : "na"}">${mark(v)}</span>`;
+// "you ✓ · them ✗": you = the notify email to dmarz, them = the confirm note to the applicant.
+const notifiedCell = (r) => `<td class="mail" title="Email to you / note to the applicant">you ${markHtml(r.notified)} · them ${markHtml(r.confirmed)}</td>`;
 
 function csv(slug, data) {
   const q = (s) => `"${String(s ?? "").replace(/"/g, '""')}"`;
-  const iss = slug === ISSUES, refd = REFERRED.has(slug);
-  const head = ["Received", "Ref", ...data.form.fields.map((f) => f.label), ...(iss ? ["Code"] : []), ...(refd ? ["Referred by"] : [])];
-  const lines = [head.map(q).join(","), ...data.rows.map((r) => [new Date(r.at * 1000).toISOString(), r.ref, ...data.form.fields.map((f) => r.answers[f.name]), ...(iss ? [r.code] : []), ...(refd ? [referrer(r.referredBy)] : [])].map(q).join(","))];
+  const iss = slug === ISSUES, refd = REFERRED.has(slug), mails = MAILS.has(slug);
+  const head = ["Received", "Ref", ...data.form.fields.map((f) => f.label), ...(iss ? ["Code"] : []), ...(refd ? ["Referred by", "Same IP as referrer"] : []), ...(mails ? ["Notified you", "Notified applicant"] : [])];
+  const lines = [head.map(q).join(","), ...data.rows.map((r) => [new Date(r.at * 1000).toISOString(), r.ref, ...data.form.fields.map((f) => r.answers[f.name]), ...(iss ? [r.code] : []), ...(refd ? [referrer(r.referredBy), r.sameIp ? "yes" : ""] : []), ...(mails ? [mark(r.notified), mark(r.confirmed)] : [])].map(q).join(","))];
   return new Blob([lines.join("\n")], { type: "text/csv" });
 }
 
 function render(slug, title, data) {
   const s = document.createElement("section");
   const rows = data.rows;
-  const iss = slug === ISSUES, refd = REFERRED.has(slug);
+  const iss = slug === ISSUES, refd = REFERRED.has(slug), mails = MAILS.has(slug);
   if (iss) for (const r of rows) if (r.code) byCode.set(r.code, r.answers.name || "?");
-  const extraHead = (iss ? "<th>Code</th>" : "") + (refd ? "<th>Referred by</th>" : "");
-  const extra = (r) => (iss ? `<td>${esc(r.code ?? "")}</td>` : "") + (refd ? `<td>${esc(referrer(r.referredBy))}</td>` : "");
+  const extraHead = (iss ? "<th>Code</th>" : "") + (refd ? "<th>Referred by</th>" : "") + (mails ? '<th title="Email to you / note to the applicant">Notified</th>' : "");
+  const extra = (r) => (iss ? `<td>${esc(r.code ?? "")}</td>` : "") + (refd ? `<td>${esc(referrer(r.referredBy))}${r.sameIp ? ` <span class="bad" title="Posted from the same IP as the referrer: possible self-referral">⚠ ${SAME_IP}</span>` : ""}</td>` : "") + (mails ? notifiedCell(r) : "");
   s.innerHTML = `<div class="hd"><h2>${esc(title)}</h2><span class="n">${rows.length}</span><span class="sp"></span>${rows.length ? '<button class="ghost" type="button">Download CSV</button>' : ""}</div>` +
     (rows.length
       ? `<div class="scroll"><table><thead><tr><th>Received</th>${data.form.fields.map((f) => `<th>${esc(f.label)}</th>`).join("")}${extraHead}</tr></thead><tbody>` +
@@ -135,12 +145,13 @@ function render(slug, title, data) {
 function referrals(loaded) {
   const count = (slug) => { const m = new Map(); for (const r of loaded[slug]?.rows ?? []) if (r.referredBy) m.set(r.referredBy, (m.get(r.referredBy) ?? 0) + 1); return m; };
   const apps = count("localhost-hacker"), wait = count("localhost-waitlist");
+  const same = new Map(); for (const slug of ["localhost-hacker", "localhost-waitlist"]) for (const r of loaded[slug]?.rows ?? []) if (r.referredBy && r.sameIp) same.set(r.referredBy, (same.get(r.referredBy) ?? 0) + 1);
   const codes = [...new Set([...apps.keys(), ...wait.keys()])].sort((a, b) => (apps.get(b) ?? 0) - (apps.get(a) ?? 0) || (wait.get(b) ?? 0) - (wait.get(a) ?? 0));
   const s = document.createElement("section");
   s.innerHTML = `<div class="hd"><h2>Referrals</h2><span class="n">${codes.length}</span></div>` +
     (codes.length
-      ? `<div class="scroll"><table><thead><tr><th>Code</th><th>Applicant</th><th>Applications referred</th><th>Waitlist referred</th></tr></thead><tbody>` +
-        codes.map((c) => `<tr><td>${esc(c)}</td><td>${esc(byCode.get(c) ?? "unknown")}</td><td>${apps.get(c) ?? 0}</td><td>${wait.get(c) ?? 0}</td></tr>`).join("") +
+      ? `<div class="scroll"><table><thead><tr><th>Code</th><th>Applicant</th><th>Applications referred</th><th>Waitlist referred</th><th title="Referred sign-ups posted from the referrer's own IP: possible self-referral">Same IP</th></tr></thead><tbody>` +
+        codes.map((c) => `<tr><td>${esc(c)}</td><td>${esc(byCode.get(c) ?? "unknown")}</td><td>${apps.get(c) ?? 0}</td><td>${wait.get(c) ?? 0}</td><td>${same.get(c) ? `<span class="bad">⚠ ${same.get(c)}</span>` : "0"}</td></tr>`).join("") +
         "</tbody></table></div>"
       : '<div class="empty">No referred applications yet.</div>');
   return s;
