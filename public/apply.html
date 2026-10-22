@@ -74,6 +74,8 @@
   }
   .foot { position: relative; z-index: 10; display: flex; gap: 22px; margin: 22px 0 28px; }
   .foot a { text-decoration: none; } .foot a:hover { color: var(--pri); }
+  .foot { flex-wrap: wrap; justify-content: center; }
+  .host { display: inline-flex; align-items: center; gap: 7px; } .host canvas { width: 18px; height: 18px; display: block; }
   @media (max-width: 640px) {
     .corner.tr, .ch .k { display: none; }
     .win { margin-top: 58px; }
@@ -113,12 +115,14 @@
     <div class="row2"><button class="b pri" type="submit">Apply</button><span class="msg" id="apmsg" role="status"></span></div>
   </form>
 </main>
-<nav class="foot hud"><a href="/">← localhost</a><a href="https://theschool.nyc" target="_blank" rel="noopener">The School, NYC ↗</a></nav>
+<nav class="foot hud"><a href="/">← localhost</a><a href="https://theschool.nyc" target="_blank" rel="noopener">The School, NYC ↗</a><a class="host" href="https://x.com/DistributedMarz" target="_blank" rel="noopener">Hosted by <canvas id="mark" aria-hidden="true"></canvas> dmarz</a></nav>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script type="module">
 import { thermal } from "./shared/thermal.js";
 import { FORMS_API, REF } from "./shared/forms.js";
+import { cube } from "./shared/cube.js";
+cube(document.getElementById("mark"));
 
 thermal(document.getElementById("c"), { block: 5 });
 const clock = document.getElementById("clock");

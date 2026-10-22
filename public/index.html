@@ -30,8 +30,11 @@
   .reticle i:nth-child(4) { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
   .reticle span { position: absolute; top: calc(100% + 6px); left: 0; white-space: nowrap; }
   .reticle.lost { opacity: 0; }
-  .school { position: fixed; z-index: 5; bottom: 16px; left: 50%; transform: translateX(-50%); text-decoration: none; }
-  .school:hover { color: var(--acid); }
+  .credits { position: fixed; z-index: 5; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; white-space: nowrap; }
+  .credits a { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; }
+  .credits a:hover { color: var(--acid); }
+  .credits .sep { opacity: .4; }
+  .credits canvas { width: 18px; height: 18px; display: block; }
   .switch { position: fixed; z-index: 60; top: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; align-items: center; }
   .switch button { font: inherit; color: inherit; background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.4); padding: 3px 9px; cursor: pointer; }
   .switch button:hover { color: var(--acid); border-color: var(--acid); }
@@ -256,7 +259,7 @@
     .corner.tl { position: absolute; }
     #root { order: 1; padding: 58px 12px 0; }
     #main { position: relative; left: auto !important; top: auto !important; transform: none !important; width: 100%; }
-    .school { order: 2; position: static; transform: none; align-self: center; margin: 22px 0 28px; }
+    .credits { order: 2; position: static; transform: none; align-self: center; margin: 22px 12px 28px; flex-wrap: wrap; justify-content: center; row-gap: 10px; white-space: normal; }
     .ctas .b:not(.ghost) { flex: 1 1 100%; text-align: center; }
     [data-t="9"] .ctas .b.ghost { padding-left: 0; padding-right: 20px; }
     .line1 { font-size: 18px; }
@@ -274,12 +277,14 @@
 <div class="corner tl hud"><span class="rec">● REC</span> CAM 07 // NEW YORK</div>
 <div class="corner tr hud" id="clock">—</div>
 <div class="reticle hud" id="ret"><i></i><i></i><i></i><i></i><span id="retlabel">SUBJECT 08 // 36.6°C</span></div>
-<a class="school hud" href="https://theschool.nyc" target="_blank" rel="noopener">The School, NYC ↗</a>
+<div class="credits hud"><a href="https://theschool.nyc" target="_blank" rel="noopener">The School, NYC ↗</a><span class="sep">·</span><a href="https://x.com/DistributedMarz" target="_blank" rel="noopener">Hosted by <canvas id="mark" aria-hidden="true"></canvas> dmarz</a></div>
 <div id="root"></div>
 
 <script type="module">
 import { thermal } from "./shared/thermal.js";
 import { mosh } from "./shared/mosh.js";
+import { cube } from "./shared/cube.js";
+cube(document.getElementById("mark"));
 import "./shared/forms.js"; // keeps a ?ref= share code for apply.html
 
 const N = 10;
