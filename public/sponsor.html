@@ -274,6 +274,7 @@
 <script type="module">
 import { thermal } from "./shared/thermal.js";
 import { cube } from "./shared/cube.js";
+import { SOURCE, convert } from "./shared/track.js";
 cube(document.getElementById("mark"));
 thermal(document.getElementById("c"), { block: 6 });
 
@@ -309,10 +310,11 @@ form.addEventListener("submit", async (e) => {
   try {
     const res = await fetch("https://form.theschool.nyc/api/f/localhost-sponsor", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.fromEntries(new FormData(form))),
+      body: JSON.stringify({ ...Object.fromEntries(new FormData(form)), ...SOURCE }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.fieldErrors ? Object.values(data.fieldErrors).join(" ") : data.error || "HTTP " + res.status);
+    convert("sponsor");
     form.style.display = "none"; document.getElementById("sent").style.display = "block";
   } catch (err) {
     msg.textContent = err.message || "Something broke. Try again in a moment.";

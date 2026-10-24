@@ -121,6 +121,7 @@
 <script type="module">
 import { thermal } from "./shared/thermal.js";
 import { FORMS_API, REF } from "./shared/forms.js";
+import { SOURCE, convert } from "./shared/track.js";
 import { cube } from "./shared/cube.js";
 cube(document.getElementById("mark"));
 
@@ -178,9 +179,10 @@ form.addEventListener("submit", async (e) => {
   const btn = form.querySelector("button[type=submit]");
   btn.disabled = true; msg.textContent = "sending…";
   try {
-    const res = await fetch(FORMS_API + "/api/f/localhost-hacker", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const res = await fetch(FORMS_API + "/api/f/localhost-hacker", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...body, ...SOURCE }) });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.fieldErrors ? Object.values(data.fieldErrors).join(" ") : data.error || "HTTP " + res.status);
+    convert("hacker");
     form.innerHTML = done(/^[a-z2-7]{8}$/.test(data.ref || "") ? data.ref : "");
     document.getElementById("apply").scrollIntoView({ block: "start" });
   } catch (err) {

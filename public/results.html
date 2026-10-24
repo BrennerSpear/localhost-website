@@ -74,6 +74,19 @@ const byCode = new Map(); // code -> applicant name
 // Forms that email: each row says whether Resend took the email to you and the note to the applicant
 // (notified / confirmed; absent = not attempted or from before 2026-10-22).
 const MAILS = new Set(["localhost-hacker", "localhost-sponsor"]);
+// Forms that store where the visitor came from (r.source: utm tags, gclid/twclid, referrer, landing).
+const SOURCED = new Set(["localhost-hacker", "localhost-sponsor"]);
+// When sources started being recorded (unix seconds): later rows without one came in direct.
+const SOURCE_SINCE = 1792811444;
+// One label per row: the utm source/campaign, else the ad that was clicked, else the referring site.
+const channel = (src) => {
+  if (!src) return "direct / unknown";
+  if (src.utm_source) return [src.utm_source, src.utm_medium, src.utm_campaign].filter(Boolean).join(" / ");
+  if (src.gclid) return "google ad";
+  if (src.twclid) return "x ad";
+  if (src.referrer) return src.referrer.replace(/^www\./, "");
+  return "direct / unknown";
+};
 
 const enc = new TextEncoder();
 const unb64 = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
@@ -117,19 +130,19 @@ const notifiedCell = (r) => `<td class="mail" title="Email to you / note to the 
 
 function csv(slug, data) {
   const q = (s) => `"${String(s ?? "").replace(/"/g, '""')}"`;
-  const iss = slug === ISSUES, refd = REFERRED.has(slug), mails = MAILS.has(slug);
-  const head = ["Received", "Ref", ...data.form.fields.map((f) => f.label), ...(iss ? ["Code"] : []), ...(refd ? ["Referred by", "Same IP as referrer"] : []), ...(mails ? ["Notified you", "Notified applicant"] : [])];
-  const lines = [head.map(q).join(","), ...data.rows.map((r) => [new Date(r.at * 1000).toISOString(), r.ref, ...data.form.fields.map((f) => r.answers[f.name]), ...(iss ? [r.code] : []), ...(refd ? [referrer(r.referredBy), r.sameIp ? "yes" : ""] : []), ...(mails ? [mark(r.notified), mark(r.confirmed)] : [])].map(q).join(","))];
+  const iss = slug === ISSUES, refd = REFERRED.has(slug), mails = MAILS.has(slug), srcd = SOURCED.has(slug);
+  const head = ["Received", "Ref", ...data.form.fields.map((f) => f.label), ...(iss ? ["Code"] : []), ...(refd ? ["Referred by", "Same IP as referrer"] : []), ...(mails ? ["Notified you", "Notified applicant"] : []), ...(srcd ? ["Came from", "Ad click", "Landing"] : [])];
+  const lines = [head.map(q).join(","), ...data.rows.map((r) => [new Date(r.at * 1000).toISOString(), r.ref, ...data.form.fields.map((f) => r.answers[f.name]), ...(iss ? [r.code] : []), ...(refd ? [referrer(r.referredBy), r.sameIp ? "yes" : ""] : []), ...(mails ? [mark(r.notified), mark(r.confirmed)] : []), ...(srcd ? [channel(r.source), r.source?.gclid ? "google" : r.source?.twclid ? "x" : "", r.source?.landing] : [])].map(q).join(","))];
   return new Blob([lines.join("\n")], { type: "text/csv" });
 }
 
 function render(slug, title, data) {
   const s = document.createElement("section");
   const rows = data.rows;
-  const iss = slug === ISSUES, refd = REFERRED.has(slug), mails = MAILS.has(slug);
+  const iss = slug === ISSUES, refd = REFERRED.has(slug), mails = MAILS.has(slug), srcd = SOURCED.has(slug);
   if (iss) for (const r of rows) if (r.code) byCode.set(r.code, r.answers.name || "?");
-  const extraHead = (iss ? "<th>Code</th>" : "") + (refd ? "<th>Referred by</th>" : "") + (mails ? '<th title="Email to you / note to the applicant">Notified</th>' : "");
-  const extra = (r) => (iss ? `<td>${esc(r.code ?? "")}</td>` : "") + (refd ? `<td>${esc(referrer(r.referredBy))}${r.sameIp ? ` <span class="bad" title="Posted from the same IP as the referrer: possible self-referral">⚠ ${SAME_IP}</span>` : ""}</td>` : "") + (mails ? notifiedCell(r) : "");
+  const extraHead = (iss ? "<th>Code</th>" : "") + (refd ? "<th>Referred by</th>" : "") + (mails ? '<th title="Email to you / note to the applicant">Notified</th>' : "") + (srcd ? '<th title="utm tags, ad click or referring site of the visit that brought them">Came from</th>' : "");
+  const extra = (r) => (iss ? `<td>${esc(r.code ?? "")}</td>` : "") + (refd ? `<td>${esc(referrer(r.referredBy))}${r.sameIp ? ` <span class="bad" title="Posted from the same IP as the referrer: possible self-referral">⚠ ${SAME_IP}</span>` : ""}</td>` : "") + (mails ? notifiedCell(r) : "") + (srcd ? `<td>${esc(r.source ? channel(r.source) : "")}</td>` : "");
   s.innerHTML = `<div class="hd"><h2>${esc(title)}</h2><span class="n">${rows.length}</span><span class="sp"></span>${rows.length ? '<button class="ghost" type="button">Download CSV</button>' : ""}</div>` +
     (rows.length
       ? `<div class="scroll"><table><thead><tr><th>Received</th>${data.form.fields.map((f) => `<th>${esc(f.label)}</th>`).join("")}${extraHead}</tr></thead><tbody>` +
@@ -157,6 +170,22 @@ function referrals(loaded) {
   return s;
 }
 
+// Per channel: how many applications and sponsor forms each source brought (rows from before
+// 2026-10-22 carry no source and are left out).
+function sources(loaded) {
+  const tally = (slug) => { const m = new Map(); for (const r of loaded[slug]?.rows ?? []) if (r.source !== undefined || r.at >= SOURCE_SINCE) { const c = channel(r.source); m.set(c, (m.get(c) ?? 0) + 1); } return m; };
+  const apps = tally("localhost-hacker"), spons = tally("localhost-sponsor");
+  const keys = [...new Set([...apps.keys(), ...spons.keys()])].sort((a, b) => (apps.get(b) ?? 0) - (apps.get(a) ?? 0) || (spons.get(b) ?? 0) - (spons.get(a) ?? 0));
+  const s = document.createElement("section");
+  s.innerHTML = `<div class="hd"><h2>Sources</h2><span class="n">${keys.length}</span></div>` +
+    (keys.length
+      ? `<div class="scroll"><table><thead><tr><th>Came from</th><th>Applications</th><th>Sponsor forms</th></tr></thead><tbody>` +
+        keys.map((k) => `<tr><td>${esc(k)}</td><td>${apps.get(k) ?? 0}</td><td>${spons.get(k) ?? 0}</td></tr>`).join("") +
+        "</tbody></table></div>"
+      : '<div class="empty">No tracked submissions yet.</div>');
+  return s;
+}
+
 $("unlock").addEventListener("submit", async (e) => {
   e.preventDefault();
   const msg = $("msg"), go = $("go");
@@ -173,7 +202,7 @@ $("unlock").addEventListener("submit", async (e) => {
       loaded[slug] = await openSealed(k.priv, j);
       out.append(render(slug, title, loaded[slug]));
     }
-    out.append(referrals(loaded));
+    out.append(referrals(loaded), sources(loaded));
     $("pp").value = ""; $("unlock").hidden = true;
     msg.textContent = `Unlocked ${new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}. Reload to lock.`;
   } catch (err) {
