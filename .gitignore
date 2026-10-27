@@ -5,3 +5,8 @@
 !.dev.vars.example
 .env*
 !.env.example
+.vercel
+.env*.local
+
+# Finder metadata in Drive-backed checkouts
+Icon?

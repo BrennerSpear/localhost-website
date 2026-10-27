@@ -353,7 +353,7 @@ const pageHTML = `
     <div class="ctas">
       <a class="b pri" href="apply.html" data-c>Apply to hack</a><a class="b" href="sponsor.html" data-c>Sponsor a track</a>
       <span class="sp"></span>
-      <button class="b ghost" data-open="tracks" data-c>Tracks →</button><button class="b ghost" data-open="schedule" data-c>Schedule →</button>
+      <a class="b ghost" href="/tracks" data-c>Tracks →</a><button class="b ghost" data-open="schedule" data-c>Schedule →</button>
     </div>
   </div>
   ${TH.post ? `<div class="post">${TH.post()}</div>` : ""}`;
@@ -380,7 +380,7 @@ document.getElementById("root").innerHTML = `
 <div class="win focus" id="main">${TH.chrome("localhost", false)}${gate}<div class="page"${V === 10 ? " hidden" : ""}>${pageHTML}</div>${TH.foot ? TH.foot(false) : ""}</div>
 <div class="win pop" id="tracks" hidden style="width:min(460px,calc(100vw - 32px))">${TH.chrome("Tracks", true)}
   <div class="list" id="list"><div class="hdr"><span>Name</span><span>Status</span></div></div>
-  <div class="info" id="info"><span class="k">Encrypted.</span> Tracks are set with our sponsors and decrypt closer to the day.</div>${TH.foot ? TH.foot(true) : ""}</div>
+  <div class="info" id="info"><span class="k">Encrypted.</span> Explore the <a href="/tracks">draft tracks and project ideas →</a>. Sponsor assignments and prizes are proposed.</div>${TH.foot ? TH.foot(true) : ""}</div>
 <div class="win pop" id="schedule" hidden style="width:min(380px,calc(100vw - 32px))">${TH.chrome("Schedule", true)}
   <div class="txt">${sched}</div>${TH.foot ? TH.foot(true) : ""}</div>`;
 

@@ -1,0 +1,6 @@
+*
+!public
+!public/**
+!vercel.preview.json
+**/Icon?
+**/.DS_Store
