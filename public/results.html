@@ -118,6 +118,7 @@ async function openSealed(priv, j) {
 
 const when = (t) => new Date(t * 1000).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 const cell = (name, v) => {
+  if (Array.isArray(v)) return esc(v.join(", "));
   if (name === "email" && v) return `<a href="mailto:${esc(v)}">${esc(v)}</a>`;
   if ((name === "link" || name === "github" || name === "x") && /^https?:\/\//i.test(v)) return `<a href="${esc(v)}" target="_blank" rel="noopener noreferrer">${esc(v)}</a>`;
   return esc(v);

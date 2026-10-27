@@ -54,6 +54,8 @@
   .apf .opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
   .apf .opts label { display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--ln); cursor: pointer; }
   .apf .opts input { width: auto; accent-color: var(--pri); }
+  .apf .opts.col { flex-direction: column; align-items: stretch; }
+  .apf .sub { display: block; color: var(--lo); font-size: 12px; margin-top: 4px; }
   .apf .opts label:has(input:checked) { border-color: var(--pri); color: var(--pri); }
   .apf .hp { position: absolute; left: -9999px; width: 1px; height: 1px; }
   .apf .row2 { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
@@ -115,6 +117,11 @@
       <label><input type="radio" name="team" value="looking">Looking for one</label>
       <label><input type="radio" name="team" value="beep-boop">beep boop</label>
     </div></div>
+    <div><span class="k">When can you be there?</span><span class="sub">Tick every window you can make.</span><div class="opts col">
+      <label><input type="checkbox" name="when" value="morning">Morning · 10:00–13:30 · kickoff + talks</label>
+      <label><input type="checkbox" name="when" value="afternoon">Afternoon · 13:30–19:00 · hacking</label>
+      <label><input type="checkbox" name="when" value="evening">Evening · 19:00–22:00 · demos + awards</label>
+    </div></div>
     <input type="text" name="field_hp" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
     <div class="cf-turnstile" id="ts" data-action="localhost-hacker" data-theme="dark" data-size="flexible"></div>
     <script>
@@ -172,10 +179,14 @@ function done(code) {
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const body = Object.fromEntries(new FormData(form));
+  const fd = new FormData(form);
+  const body = Object.fromEntries(fd);
+  body.when = fd.getAll("when");
   for (const k of ["name", "email", "github", "built", "why"]) {
     if (!String(body[k] ?? "").trim()) { msg.textContent = "Fill in every field except X."; form.elements[k]?.focus(); return; }
   }
+  if (!body.team) { msg.textContent = "Team: pick one."; return; }
+  if (!body.when.length) { msg.textContent = "When: tick at least one window."; form.querySelector("[name=when]").focus(); return; }
   const gh = githubUrl(body.github);
   if (!gh) { msg.textContent = "GitHub: a username or a github.com link."; return; }
   body.github = gh;
