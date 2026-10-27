@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tracks — LOCALHOST · Organizer draft</title>
-<meta name="description" content="Four proposed tracks for LOCALHOST: everyday AI, agent memory, private workflows and shared compute. An organizer-review draft.">
+<title>Tracks — LOCALHOST</title>
+<meta name="description" content="Four tracks for LOCALHOST: everyday AI, agent memory, private workflows and shared compute.">
 <meta name="robots" content="noindex, nofollow">
-<meta property="og:title" content="LOCALHOST — Draft tracks + prizes">
-<meta property="og:description" content="What can you now do with AI that you actually control? Four proposed tracks, project ideas and judging for organizer review.">
+<meta property="og:title" content="LOCALHOST — Tracks + prizes">
+<meta property="og:description" content="What can you now do with AI that you actually control? Four tracks, project ideas and $6,000 in prizes.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://localhostai.nyc/img/school/leg1-thermal.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -46,10 +46,6 @@ h1 span { color: var(--acid); }
 .hero-copy .question { font: 500 clamp(22px, 2.4vw, 30px)/1.35 var(--read); letter-spacing: -.025em; }
 .hero-copy p + p { margin-top: 20px; color: #c0c7ce; }
 .event { margin-top: 34px; color: #c0c7ce; }
-.draft { margin-top: 36px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: start; padding: 20px 22px; background: rgba(12,14,17,.9); border: 1px solid #57622e; }
-.draft .tag { color: var(--acid); white-space: nowrap; padding-top: 3px; }
-.draft p { font-size: 13px; line-height: 1.6; color: var(--mid); }
-.draft strong { color: var(--hi); font-weight: 500; }
 .section-top { display: flex; justify-content: space-between; gap: 20px; align-items: baseline; margin-bottom: 26px; }
 h2 { font: 500 clamp(26px, 3vw, 38px)/1.2 var(--read); letter-spacing: -.03em; }
 .overview { padding: 32px 0 68px; }
@@ -104,7 +100,7 @@ details b { color: var(--hi); font-weight: 500; }
 .prizes { padding: 90px 0 80px; }
 .prize-layout { display: grid; grid-template-columns: 1fr 1.3fr; gap: 54px; margin-top: 30px; align-items: start; }
 .prize-intro p { color: var(--mid); margin-top: 16px; font-size: 14px; }
-.prize-intro .condition { border: 1px solid #57622e; background: #151a10; color: #dbe2cf; padding: 18px; margin-top: 0; }
+.prize-intro .pool { border: 1px solid #57622e; background: #151a10; color: #dbe2cf; padding: 18px; margin-top: 0; }
 .table-wrap { border: 1px solid var(--line); background: var(--panel); }
 table { border-collapse: collapse; width: 100%; text-align: left; font: 13px/1.6 var(--read); }
 caption { text-align: left; padding: 15px 20px; border-bottom: 1px solid var(--line); color: var(--acid); font: 11px/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
@@ -125,7 +121,6 @@ footer a { text-decoration: none; }
 @media (max-width: 850px) {
   .hero-grid { gap: 26px; grid-template-columns: 1fr; }
   h1 { font-size: clamp(42px, 7vw, 58px); }
-  .draft { grid-template-columns: 1fr; gap: 10px; }
   .track-nav { grid-template-columns: 1fr 1fr; }
   .track-nav a:nth-child(2) { border-right: 0; }
   .track-nav a:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
@@ -153,8 +148,6 @@ footer a { text-decoration: none; }
   .hero-copy .question { font-size: 23px; max-width: 23ch; }
   .hero-copy p + p { font-size: 14px; margin-top: 14px; }
   .event { margin-top: 26px; font-size: 10px; }
-  .draft { grid-template-columns: 1fr; gap: 9px; padding: 16px; margin-top: 24px; }
-  .draft .tag { padding: 0; }
   .overview { padding-top: 16px; padding-bottom: 40px; }
   .track-nav a { padding: 16px 14px; gap: 12px; }
   .track-nav a strong { font-size: 14px; }
@@ -200,11 +193,10 @@ footer a { text-decoration: none; }
       <div class="hero-copy"><p class="question">What can you now do with AI that you actually control?</p><p>Start with one person and one task. Make something they can run, change and keep using.</p></div>
     </div>
     <div class="k event">Sat, Nov 7, 2026 &nbsp;·&nbsp; The School, Williamsburg, NYC</div>
-    <div class="draft"><span class="k tag">Organizer-review draft</span><p><strong>Proposed tracks + prizes · October 26, 2026.</strong> Track names, sponsor assignments, judging rules and prize amounts are awaiting organizer and sponsor approval. Project ideas and event integrations have not been tested.</p></div>
   </div>
 </section>
 <div class="wrap">
-  <nav class="overview" aria-label="Proposed tracks">
+  <nav class="overview" aria-label="Tracks">
     <div class="track-nav">
       <a href="#everyday"><span class="k">Track 01 <span aria-hidden="true">↘</span></span><strong>Own Your<br>Everyday AI</strong></a>
       <a href="#memory"><span class="k">Track 02 <span aria-hidden="true">↘</span></span><strong>An Agent That<br>Knows You</strong></a>
@@ -215,10 +207,10 @@ footer a { text-decoration: none; }
   </nav>
   <div class="track-list" id="content">
     <article class="track window" id="everyday" aria-labelledby="everyday-title">
-      <div class="chrome"><span class="k path">localhost / tracks / everyday</span><span class="k status">Proposed track</span></div>
+      <div class="chrome"><span class="k path">localhost / tracks / everyday</span><span class="k status">Track 01</span></div>
       <div class="track-head"><span class="track-no" aria-hidden="true">01</span><div><h2 id="everyday-title">Own Your Everyday AI</h2><p>Make a tool you can run, change and keep using. Improve something that already exists; you don't need to recreate an entire app.</p></div></div>
       <div class="track-body">
-        <div class="track-brief"><div class="k">What should win</div><p>A useful tool someone can run, understand or adapt themselves: better dictation, local meeting notes, a home interaction or a creative instrument.</p><div class="sponsor"><div class="k">Possible sponsor</div><p><b>Variant</b> · subject to agreement</p><small>No sponsor-specific product integration is proposed for this track.</small></div></div>
+        <div class="track-brief"><div class="k">What should win</div><p>A useful tool someone can run, understand or adapt themselves: better dictation, local meeting notes, a home interaction or a creative instrument.</p><div class="sponsor"><div class="k">Sponsor</div><p><b>Variant</b></p><small>Choose the tools that work for your project.</small></div></div>
         <div class="ideas"><div class="k">Start small // Project seeds</div>
           <div class="idea"><h3>Dictation that gets your names right</h3><p>Extend an offline dictation app with a ten-term correction list, raw-versus-corrected preview and a way to add a term.</p><p class="demo"><span>Demo:</span> Read a short script before and after. Let a visitor add a term and try again offline. Start with <a href="https://github.com/cjpais/Handy">Handy</a>.</p></div>
           <div class="idea"><h3>A recording becomes useful local notes</h3><p>Import audio, transcribe locally, and draft decisions and action items linked to transcript passages. Save editable files in an ordinary folder.</p><p class="demo"><span>Demo:</span> Open the passage behind a decision, correct the note and reopen the file with networking disabled. Start with <a href="https://github.com/FluidInference/FluidAudio">FluidAudio</a> (supported Apple hardware) + a local model.</p></div>
@@ -227,10 +219,10 @@ footer a { text-decoration: none; }
       </div><p class="track-note">For a local-only claim, show a prepared offline run. Set up models and hardware before the day; a prerecorded input or virtual device is a useful first version.</p>
     </article>
     <article class="track window" id="memory" aria-labelledby="memory-title">
-      <div class="chrome"><span class="k path">localhost / tracks / memory</span><span class="k status">Proposed track</span></div>
+      <div class="chrome"><span class="k path">localhost / tracks / memory</span><span class="k status">Track 02</span></div>
       <div class="track-head"><span class="track-no" aria-hidden="true">02</span><div><h2 id="memory-title">An Agent That Knows You</h2><p>Make remembered context useful, understandable and controllable.</p></div></div>
       <div class="track-body">
-        <div class="track-brief"><div class="k">What should win</div><p>Useful memory that survives a new session, moves between agents, or can be inspected and corrected by its user.</p><div class="sponsor"><div class="k">Proposed tool / sponsor</div><p><b>Cognee</b> · identity and agreement to confirm</p><small>Start from a sponsor-tested shared-memory setup. Event access and eligibility remain to be agreed.</small></div></div>
+        <div class="track-brief"><div class="k">What should win</div><p>Useful memory that survives a new session, moves between agents, or can be inspected and corrected by its user.</p><div class="sponsor"><div class="k">Built with</div><p><b>Cognee</b></p><small>Connect your agents to the same memory backend and dataset. Test a fresh-session handoff before building the rest.</small></div></div>
         <div class="ideas"><div class="k">Start small // Project seeds</div>
           <div class="idea"><h3>Pick up where your other agent left off</h3><p>Connect two existing agents to one memory service. Store five approved facts, one decision with its reason and one next step. Add a “resume this project” command.</p><p class="demo"><span>Demo:</span> Teach agent A why a feature was postponed. A fresh session in agent B recalls the reason and source.</p></div>
           <div class="idea"><h3>Fix what your agent remembers</h3><p>Build a memory inbox with three controls: approve, show source and replace. Keep one fact per item and a simple source ledger.</p><p class="demo"><span>Demo:</span> Change a seeded morning-meeting preference to afternoons; fresh retrieval uses the correction.</p></div>
@@ -239,32 +231,32 @@ footer a { text-decoration: none; }
       </div><p class="track-note">Shared memory needs the same backend and intentional dataset access; separate installations do not automatically share state. Removing or replacing a memory does not erase source files, prior transcripts or every cached copy. <a href="https://www.cognee.ai/mcp">Cognee MCP ↗</a></p>
     </article>
     <article class="track window" id="private" aria-labelledby="private-title">
-      <div class="chrome"><span class="k path">localhost / tracks / private</span><span class="k status">Proposed track</span></div>
+      <div class="chrome"><span class="k path">localhost / tracks / private</span><span class="k status">Track 03</span></div>
       <div class="track-head"><span class="track-no" aria-hidden="true">03</span><div><h2 id="private-title">Keep It Private</h2><p>Make a useful workflow for information people hesitate to send to AI.</p></div></div>
       <div class="track-body">
-        <div class="track-brief"><div class="k">What should win</div><p>A valuable private workflow, with evidence of what is protected and where the remaining data boundaries are.</p><div class="sponsor"><div class="k">Proposed tool / sponsor</div><p><b>Tinfoil</b> · subject to agreement</p><small>Use a verifying client or local proxy. Explain parsing, embeddings, storage, logs and external tools as part of the full flow.</small></div></div>
+        <div class="track-brief"><div class="k">What should win</div><p>A valuable private workflow, with evidence of what is protected and where the remaining data boundaries are.</p><div class="sponsor"><div class="k">Built with</div><p><b>Tinfoil</b></p><small>Use a verifying client or local proxy. Explain parsing, embeddings, storage, logs and external tools as part of the full flow.</small></div></div>
         <div class="ideas"><div class="k">Start small // Project seeds</div>
-          <div class="idea"><h3>Private meeting notes you can keep</h3><p>Import a two-minute sample, transcribe it through Tinfoil, summarize it and save editable local Markdown with links to transcript passages.</p><p class="demo"><span>Demo:</span> Show connection verification, correct a transcription mistake and export the notes. Audio and text model availability need confirmation.</p></div>
+          <div class="idea"><h3>Private meeting notes you can keep</h3><p>Import a two-minute sample, transcribe it through Tinfoil, summarize it and save editable local Markdown with links to transcript passages.</p><p class="demo"><span>Demo:</span> Show connection verification, correct a transcription mistake and export the notes. Check your chosen audio and text models before building.</p></div>
           <div class="idea"><h3>Find the clause in your paperwork</h3><p>Open one short sample PDF, extract text locally or through Tinfoil, and answer questions with supporting passages.</p><p class="demo"><span>Demo:</span> Find a cancellation deadline and show its exact passage; refuse a question the document cannot answer. Keep it to retrieval, with no legal conclusions.</p></div>
           <details><summary>Two more directions +</summary><ul><li><b>Review your week from your own journal.</b> Use seven fictional entries to generate themes and reflection questions linked to their sources. Let the user save or discard the result. No diagnosis or automatic life advice.</li><li><b>Search a folder you control.</b> Index twenty text files with local or verified Tinfoil embeddings. Generate a sourced answer and show exactly which snippets left the machine. Confirm the embedding client path first.</li></ul></details>
         </div>
       </div><p class="track-note">Remote confidential inference is still remote computation. Demonstrate verification and the rest of the data flow. Use fictional or public sample records in the demo. <a href="https://tinfoil.sh/security-and-privacy-faq">Tinfoil security FAQ ↗</a></p>
     </article>
     <article class="track window" id="compute" aria-labelledby="compute-title">
-      <div class="chrome"><span class="k path">localhost / tracks / compute</span><span class="k status">Proposed track</span></div>
+      <div class="chrome"><span class="k path">localhost / tracks / compute</span><span class="k status">Track 04</span></div>
       <div class="track-head"><span class="track-no" aria-hidden="true">04</span><div><h2 id="compute-title">Build on Shared Compute</h2><p>Make something useful with Darkbloom inference. Build the workflow around the model: its interface, files, review steps and outputs.</p></div></div>
       <div class="track-body">
-        <div class="track-brief"><div class="k">What should win</div><p>A useful or surprising application whose core task uses Darkbloom inference. Show why the chosen model and backend suit the task.</p><div class="sponsor"><div class="k">Proposed tool / sponsor</div><p><b>Darkbloom</b> · subject to agreement</p><small>Models, credits, limits, supported features and event capacity need confirmation. A changed API address alone is a small contribution.</small></div></div>
+        <div class="track-brief"><div class="k">What should win</div><p>A useful or surprising application whose core task uses Darkbloom inference. Show why the chosen model and backend suit the task.</p><div class="sponsor"><div class="k">Built with</div><p><b>Darkbloom</b></p><small>Choose an available model, check its features and request limits, and test your core task. A changed API address alone is a small contribution.</small></div></div>
         <div class="ideas"><div class="k">Start small // Project seeds</div>
           <div class="idea"><h3>Help an open-source maintainer clear a backlog</h3><p>Import twenty public issues and a README. Suggest categories, possible duplicates, missing reproduction steps and draft replies. Let a maintainer approve or correct them.</p><p class="demo"><span>Demo:</span> Review five issues, explain one duplicate and export accepted drafts. Start with text; automatic posting can wait.</p></div>
           <div class="idea"><h3>A story machine the whole room can play</h3><p>Visitors contribute a place, object or sentence. Generate a short branching story, render predefined visual layouts and let the room vote on the next branch.</p><p class="demo"><span>Demo:</span> Three contributions visibly change the story and produce an exportable zine. Text generation is enough.</p></div>
           <details><summary>Four more directions +</summary><ul><li><b>Turn a document pile into a decision packet.</b> Extract proposals, dates, costs and open questions from twenty text documents. Link claims to excerpts and export a corrected briefing.</li><li><b>Make a confusing public notice usable.</b> Create a plain-language version and checklist. Compare critical dates, addresses and eligibility with the original; keep outputs as drafts for review.</li><li><b>Find out which open model can do your job.</b> Run five fixed tasks against one or two available models. Save outputs, failures, elapsed time and reported usage. Reproduce a failure; no load testing.</li><li><b>Turn a workshop into a learning pack.</b> Start with a short transcript. Create a sourced glossary, exercise sheet and open-question list. Let a new participant complete one exercise.</li></ul></details>
         </div>
-      </div><p class="track-note">Use public or fictional inputs. Darkbloom's About and API material says the coordinator and provider process plaintext; some other pages make stronger claims. Until clarified, use that narrower boundary. <a href="https://www.darkbloom.ai/about">About ↗</a> · <a href="https://console.darkbloom.dev/api-console">API console ↗</a></p>
+      </div><p class="track-note">Use public or fictional inputs. Darkbloom's coordinator and provider process plaintext, according to its About and API material. Build your demo around that data boundary. <a href="https://www.darkbloom.ai/about">About ↗</a> · <a href="https://console.darkbloom.dev/api-console">API console ↗</a></p>
     </article>
   </div>
   <section class="rules" id="judging" aria-labelledby="judging-title">
-    <div class="section-top"><h2 id="judging-title">Show what changed.</h2><span class="k">Proposed judging</span></div>
+    <div class="section-top"><h2 id="judging-title">Show what changed.</h2><span class="k">Judging</span></div>
     <p class="section-copy">Three common questions, with each sponsor adding its specific integration requirement. A small useful improvement can beat an unfinished general agent.</p>
     <div class="judge-grid">
       <div class="judge"><div class="k">01 // Working</div><h3>Does it work on a real task?</h3><p>Show the workflow and its output. Let someone other than the builder try the intended task.</p></div>
@@ -274,27 +266,27 @@ footer a { text-decoration: none; }
     <div class="submission"><h3>A short submission card</h3><p>What it does. What runs where. What data leaves. What was built today. How someone else can try it. Demonstrate your strongest privacy or control claim.</p></div>
   </section>
   <section class="prizes" id="prizes" aria-labelledby="prizes-title">
-    <div class="section-top"><h2 id="prizes-title">Prizes, if the pool supports it.</h2><span class="k">Illustrative budget // Unconfirmed</span></div>
+    <div class="section-top"><h2 id="prizes-title">Prizes</h2><span class="k">$6,000 prize pool</span></div>
     <div class="prize-layout">
-      <div class="prize-intro"><p class="condition">If four sponsors each committed $1,500 to prizes, this is one possible $6,000 distribution.</p><p>This is conditional arithmetic, not a confirmed prize pool. Amounts depend on actual agreements, fees and payment arrangements.</p><p>People's Choice would give an artistic, tactile or playful build another route to recognition. Hardware and art remain welcome in every relevant track.</p></div>
-      <div class="table-wrap"><table><caption>Proposed awards · Subject to approval</caption><thead><tr><th scope="col">Award</th><th scope="col">Amount</th></tr></thead><tbody>
+      <div class="prize-intro"><p class="pool">Four track awards. Best Overall. People's Choice.</p><p>Build something useful, surprising or worth keeping. Each track awards $1,000, with $1,500 for Best Overall and $500 for People's Choice.</p><p>People's Choice gives an artistic, tactile or playful build another route to recognition. Hardware and art are welcome in every relevant track.</p></div>
+      <div class="table-wrap"><table><caption>Awards</caption><thead><tr><th scope="col">Award</th><th scope="col">Amount</th></tr></thead><tbody>
         <tr><th scope="row">Own Your Everyday AI</th><td>$1,000</td></tr>
         <tr><th scope="row">An Agent That Knows You</th><td>$1,000</td></tr>
         <tr><th scope="row">Keep It Private</th><td>$1,000</td></tr>
         <tr><th scope="row">Build on Shared Compute</th><td>$1,000</td></tr>
         <tr><th scope="row">Best Overall</th><td>$1,500</td></tr>
         <tr><th scope="row">People's Choice</th><td>$500</td></tr>
-      </tbody><tfoot><tr><th scope="row">Illustrative total</th><td>$6,000</td></tr></tfoot></table></div>
+      </tbody><tfoot><tr><th scope="row">Total</th><td>$6,000</td></tr></tfoot></table></div>
     </div>
     <div class="eligibility">
-      <div><h3>One project, overlapping tracks</h3><p>Proposed rule: enter several relevant tracks, but win at most one sponsor award, plus Best Overall and/or People's Choice. Sponsor agreement and a way to resolve multiple winning nominations are still needed.</p></div>
-      <div><h3>Reward the work added that day</h3><p>Integrations, extensions and focused forks are welcome. Judge the hackathon contribution. Final eligibility, source-code or reproducible-artifact requirements and licensing expectations remain to be agreed.</p></div>
+      <div><h3>One project, overlapping tracks</h3><p>Enter several relevant tracks, but win at most one sponsor award, plus Best Overall and/or People's Choice.</p></div>
+      <div><h3>Reward the work added that day</h3><p>Integrations, extensions and focused forks are welcome. Judging focuses on your hackathon contribution. Show what you added that day and how someone else can try it.</p></div>
     </div>
   </section>
-  <div class="end"><div><h3>Bring your own idea.</h3><p>These are starting points. Combine tracks, cut an idea down further, or build something we haven't thought of. Organizer and sponsor review will settle the final rules and starter paths.</p></div><a href="#page-title">Back to top ↑</a></div>
+  <div class="end"><div><h3>Bring your own idea.</h3><p>These are starting points. Combine tracks, cut an idea down further, or build something we haven't thought of.</p></div><a href="#page-title">Back to top ↑</a></div>
 </div>
 </main>
-<footer><div class="wrap k"><a href="/">← LOCALHOST · Sat, Nov 7, 2026</a><span>Tracks + prizes // Organizer draft</span><a href="https://theschool.nyc">The School, NYC ↗</a></div></footer>
+<footer><div class="wrap k"><a href="/">← LOCALHOST · Sat, Nov 7, 2026</a><span>Tracks + prizes</span><a href="https://theschool.nyc">The School, NYC ↗</a></div></footer>
 <script type="module">
 import { thermal } from "/shared/thermal.js";
 thermal(document.getElementById("thermal"), { block: 6, bodies: 5 });

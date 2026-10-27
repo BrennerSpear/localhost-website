@@ -72,7 +72,7 @@
   .list { font-size: 13px; overflow: auto; max-height: min(420px, 52vh); }
   .list .hdr, .list .row { display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px; padding: 5px 12px; }
   .list .hdr { position: sticky; top: 0; background: var(--pg); border-bottom: 1px solid var(--ln); font-size: 11px; color: var(--dim); }
-  .list .row { cursor: pointer; }
+  .list .row { cursor: pointer; color: inherit; text-decoration: none; }
   .list .row .g { color: var(--dim); font-size: 11px; }
   .list .row.sel { background: var(--fg); color: var(--pg); }
   .list .row.sel .g { color: inherit; }
@@ -363,9 +363,7 @@ The authenticity of host 'localhost' can't be established.
 ED25519 key fingerprint is SHA256:${rand(43)}.
 Are you sure you want to continue connecting (yes/no)?<span class="q"><button id="yes">yes</button><button id="no">no</button></span></div>` : "";
 
-const sched = `<span class="d">draft, times will move</span>
-
-SAT 7 NOV
+const sched = `SAT 7 NOV
   10:00  doors + coffee
   10:30  opening remarks
   11:00  kickoff, hacking starts
@@ -379,8 +377,8 @@ SAT 7 NOV
 document.getElementById("root").innerHTML = `
 <div class="win focus" id="main">${TH.chrome("localhost", false)}${gate}<div class="page"${V === 10 ? " hidden" : ""}>${pageHTML}</div>${TH.foot ? TH.foot(false) : ""}</div>
 <div class="win pop" id="tracks" hidden style="width:min(460px,calc(100vw - 32px))">${TH.chrome("Tracks", true)}
-  <div class="list" id="list"><div class="hdr"><span>Name</span><span>Status</span></div></div>
-  <div class="info" id="info"><span class="k">Encrypted.</span> Explore the <a href="/tracks">draft tracks and project ideas →</a>. Sponsor assignments and prizes are proposed.</div>${TH.foot ? TH.foot(true) : ""}</div>
+  <div class="list" id="list"><div class="hdr"><span>Name</span><span>Track</span></div></div>
+  <div class="info" id="info">Build one project, enter the relevant tracks. <a href="/tracks">Explore tracks and project ideas →</a></div>${TH.foot ? TH.foot(true) : ""}</div>
 <div class="win pop" id="schedule" hidden style="width:min(380px,calc(100vw - 32px))">${TH.chrome("Schedule", true)}
   <div class="txt">${sched}</div>${TH.foot ? TH.foot(true) : ""}</div>`;
 
@@ -468,24 +466,21 @@ if (V === 9) {
   setWatched(true);
 }
 
-// ---------- tracks: sealed until the sponsors lock them ----------
-const list = document.getElementById("list"), info = document.getElementById("info");
-const sealed = Array.from({ length: 4 }, (_, i) => {
-  const row = document.createElement("div");
+// ---------- tracks ----------
+const list = document.getElementById("list");
+const tracks = [
+  ["Own Your Everyday AI", "everyday"],
+  ["An Agent That Knows You", "memory"],
+  ["Keep It Private", "private"],
+  ["Build on Shared Compute", "compute"],
+];
+for (const [i, [name, id]] of tracks.entries()) {
+  const row = document.createElement("a");
   row.className = "row";
-  row.innerHTML = `<span></span><span class="g">sealed</span>`;
-  row.addEventListener("click", () => {
-    list.querySelectorAll(".row").forEach((r) => r.classList.toggle("sel", r === row));
-    info.innerHTML = `<div class="k">Track 0${i + 1} · sealed</div>Decrypts when its sponsor locks it in. Want to set one? <a href="sponsor.html">Sponsor a track →</a>`;
-  });
+  row.href = `/tracks#${id}`;
+  row.innerHTML = `<span>${name}</span><span class="g">Track 0${i + 1} →</span>`;
   list.appendChild(row);
-  return row.firstChild;
-});
-const hexg = "0123456789abcdef";
-(function scramble() {
-  for (const el of sealed) el.textContent = Array.from({ length: 14 }, () => hexg[Math.random() * 16 | 0]).join("").replace(/(.{4})/g, "$1 ").trim();
-  setTimeout(scramble, 220);
-})();
+}
 
 // ---------- windows ----------
 let z = 20;
